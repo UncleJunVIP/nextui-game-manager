@@ -8,6 +8,12 @@ type AppState struct {
 	Config *Config
 
 	MenuPositionList []MenuPositionPointer
+
+	GamePlayMap 	map[string][]PlayHistoryAggregate
+	ConsolePlayMap 	map[string]int
+	TotalPlay 		int
+
+	CollectionMap	map[string][]Collection
 }
 
 func (a AppState) MarshalLogObject(enc zapcore.ObjectEncoder) error {

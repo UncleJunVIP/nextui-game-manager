@@ -161,6 +161,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 
 	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+		state.ClearCollectionMap()
 		selectedCol := selection.Unwrap().SelectedItem.Metadata.(models.Collection)
 
 		_, err := utils.AddCollectionGames(selectedCol, a.Games)

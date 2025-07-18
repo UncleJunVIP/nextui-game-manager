@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 )
 
 func updateCollectionGamePath(collection models.Collection, oldDisplayName string, game shared.Item, romDirectory shared.RomDirectory) {
@@ -158,4 +159,57 @@ func containsGame(games []shared.Item, targetGame shared.Item) bool {
 	return slices.ContainsFunc(games, func(game shared.Item) bool {
 		return game.DisplayName == targetGame.DisplayName
 	})
+}
+
+func GenerateCollectionMap() map[string][]models.Collection {
+	collectionMap := make(map[string][]models.Collection)
+	collectionList, _, _ := GenerateCollectionList("", false)
+	for _, collection := range collectionList {
+		for _, game := range collection.Games {
+			collectionMap[game.DisplayName] = append(collectionMap[game.DisplayName], collection)
+		}
+	}
+	return collectionMap
+}
+
+func GenerateCollectionList(searchFilter string, onScreen bool) (collections []models.Collection, exitCode int, e error) {
+	fb := filebrowser.NewFileBrowser(common.GetLoggerInstance())
+	err := fb.CWD(GetCollectionDirectory(), false)
+	if err != nil {
+		if onScreen {
+			ShowTimedMessage("Unable to Load Collections!", time.Second*2)
+		}
+		return nil, 404, nil
+	}
+
+	if fb.Items == nil || len(fb.Items) == 0 {
+		return nil, 404, nil
+	}
+
+	itemList := fb.Items
+
+	if searchFilter != "" {
+		itemList = FilterList(itemList, searchFilter)
+	}
+
+	slices.SortFunc(itemList, func(a, b shared.Item) int {
+		return strings.Compare(a.DisplayName, b.DisplayName)
+	})
+
+	var collectionList []models.Collection
+	for _, item := range itemList {
+		col := models.Collection{DisplayName: item.DisplayName, CollectionFile: item.Path}
+		col, err = ReadCollection(col)
+
+		if err != nil {
+			if onScreen {
+				ShowTimedMessage("Unable to Load Collections!", time.Second*2)
+			}
+			return nil, -1, err
+		}
+
+		collectionList = append(collectionList, col)
+	}
+
+	return collectionList, 0, nil
 }

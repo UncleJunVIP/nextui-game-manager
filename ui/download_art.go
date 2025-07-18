@@ -6,6 +6,7 @@ import (
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"nextui-game-manager/models"
+	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 	"qlova.tech/sum"
 	"time"
@@ -38,7 +39,7 @@ func (da DownloadArtScreen) Name() sum.Int[models.ScreenName] {
 func (da DownloadArtScreen) Draw() (value interface{}, exitCode int, e error) {
 
 	artPath, _ := gaba.ProcessMessage(fmt.Sprintf("Finding art for %s...", da.Game.DisplayName), gaba.ProcessMessageOptions{}, func() (interface{}, error) {
-		artPath := utils.FindArt(da.RomDirectory, da.Game, da.DownloadType)
+		artPath := utils.FindArt(da.RomDirectory, da.Game, da.DownloadType, state.GetAppState().Config.FuzzySearchThreshold)
 		return artPath, nil
 	})
 

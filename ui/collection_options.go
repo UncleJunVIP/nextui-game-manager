@@ -60,6 +60,7 @@ func (c CollectionOptionsScreen) Draw() (screenReturn interface{}, exitCode int,
 
 	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+		state.ClearCollectionMap()
 		action := models.ActionMap[selection.Unwrap().SelectedItem.Metadata.(string)]
 
 		switch action {

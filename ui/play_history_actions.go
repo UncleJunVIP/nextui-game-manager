@@ -11,17 +11,17 @@ import (
 	"qlova.tech/sum"
 )
 
-type ActionsScreen struct {
+type PlayHistoryActionsScreen struct {
 	Game                 shared.Item
 	RomDirectory         shared.RomDirectory
 	SearchFilter         string
 	PreviousRomDirectory shared.RomDirectory
 }
 
-func InitActionsScreen(game shared.Item, romDirectory shared.RomDirectory,
+func InitPlayHistoryActionsScreen(game shared.Item, romDirectory shared.RomDirectory,
 	previousRomDirectory shared.RomDirectory,
-	searchFilter string) ActionsScreen {
-	return ActionsScreen{
+	searchFilter string) PlayHistoryActionsScreen {
+	return PlayHistoryActionsScreen{
 		Game:                 game,
 		RomDirectory:         romDirectory,
 		PreviousRomDirectory: previousRomDirectory,
@@ -29,14 +29,14 @@ func InitActionsScreen(game shared.Item, romDirectory shared.RomDirectory,
 	}
 }
 
-func (a ActionsScreen) Name() sum.Int[models.ScreenName] {
-	return models.ScreenNames.Actions
+func (ptas PlayHistoryActionsScreen) Name() sum.Int[models.ScreenName] {
+	return models.ScreenNames.PlayHistoryActions
 }
 
-func (a ActionsScreen) Draw() (action interface{}, exitCode int, e error) {
+func (ptas PlayHistoryActionsScreen) Draw() (action interface{}, exitCode int, e error) {
 	logger := common.GetLoggerInstance()
 
-	existingArtFilename, err := utils.FindExistingArt(a.Game.Filename, a.RomDirectory)
+	existingArtFilename, err := utils.FindExistingArt(ptas.Game.Filename, ptas.RomDirectory)
 	if err != nil {
 		logger.Error("failed to find existing arts", zap.Error(err))
 	}
@@ -49,12 +49,6 @@ func (a ActionsScreen) Draw() (action interface{}, exitCode int, e error) {
 		actions = utils.InsertIntoSlice(actions, 1, "Delete Art")
 	}
 
-	gamePlayMap, _, _ := state.GetPlayMaps()
-	gameAggregate, _ := utils.CollectGameAggregateFromGame(a.Game, gamePlayMap)
-	if gameAggregate.PlayCountTotal != 0 {
-		actions = append(actions, "View Play Details")
-	}
-
 	var actionEntries []gabagool.MenuItem
 	for _, action := range actions {
 		actionEntries = append(actionEntries, gabagool.MenuItem{
@@ -65,7 +59,7 @@ func (a ActionsScreen) Draw() (action interface{}, exitCode int, e error) {
 		})
 	}
 
-	options := gabagool.DefaultListOptions(a.Game.DisplayName, actionEntries)
+	options := gabagool.DefaultListOptions(ptas.Game.DisplayName, actionEntries)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
