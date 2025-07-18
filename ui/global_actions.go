@@ -145,7 +145,7 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 			gabagool.ProcessMessage(fmt.Sprintf("Searching for art...\n%d %s | %d %s Total",
 				len(selectedPlatformsMap), platformLabel, selectedMissingArtCount, gamesLabel), gabagool.ProcessMessageOptions{}, func() (interface{}, error) {
 				for romDir, games := range selectedPlatformsMap {
-					downloads = append(downloads, utils.FindAllArt(romDir, games, state.GetAppState().Config.ArtDownloadType)...)
+					downloads = append(downloads, utils.FindAllArt(romDir, games, state.GetAppState().Config.ArtDownloadType, state.GetAppState().Config.FuzzySearchThreshold)...)
 				}
 				return nil, nil
 			})

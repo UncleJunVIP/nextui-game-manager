@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 	"math"
 	"net/url"
-	"nextui-game-manager/state"
 	"path/filepath"
 	"qlova.tech/sum"
 	"regexp"
@@ -42,7 +41,7 @@ func FindExistingArt(selectedFile string, romDirectory shared.RomDirectory) (str
 	return "", nil
 }
 
-func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadType sum.Int[shared.ArtDownloadType]) []gaba.Download {
+func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadType sum.Int[shared.ArtDownloadType], fuzzySearchThreshold float64) []gaba.Download {
 	logger := common.GetLoggerInstance()
 
 	artMap := make(map[shared.Item]string)
@@ -57,7 +56,7 @@ func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadTy
 	}
 
 	for _, game := range games {
-		matchedArt := findMatchingArt(artList, game.Filename)
+		matchedArt := findMatchingArt(artList, game.Filename, fuzzySearchThreshold)
 		if matchedArt.Filename != "" {
 			artMap[game] = matchedArt.Filename
 		}
@@ -68,7 +67,7 @@ func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadTy
 	return downloads
 }
 
-func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType sum.Int[shared.ArtDownloadType]) string {
+func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType sum.Int[shared.ArtDownloadType], fuzzySearchThreshold float64) string {
 	logger := common.GetLoggerInstance()
 
 	artDirectory := buildArtDirectory(game)
@@ -81,7 +80,7 @@ func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType su
 		return ""
 	}
 
-	matchedArt := findMatchingArt(artList, game.Filename)
+	matchedArt := findMatchingArt(artList, game.Filename, fuzzySearchThreshold)
 	if matchedArt.Filename == "" {
 		return ""
 	}
@@ -161,7 +160,7 @@ func findRomsWithoutArtInDirectory(romDir shared.RomDirectory) ([]shared.Item, e
 	return romsWithoutArt, nil
 }
 
-func findMatchingArt(artList []shared.Item, filename string) shared.Item {
+func findMatchingArt(artList []shared.Item, filename string, fuzzySearchThreshold float64) shared.Item {
 	// toastd's trick for Libretro Thumbnail Naming
 	cleanedName := strings.ReplaceAll(filename, "&", "_")
 
@@ -176,7 +175,7 @@ func findMatchingArt(artList []shared.Item, filename string) shared.Item {
 		return strings.Contains(strings.ToLower(art.Filename), strings.ToLower(targetName))
 	}); idx != -1 {
 		return artList[idx]
-	} else if fuzzyMatch, meetsThreshold := fuzzyArtSearch(targetName, artList); meetsThreshold {
+	} else if fuzzyMatch, meetsThreshold := fuzzyArtSearch(targetName, artList, fuzzySearchThreshold); meetsThreshold {
 		return shared.Item{
 			Filename: fuzzyMatch,
 		}
@@ -185,9 +184,7 @@ func findMatchingArt(artList []shared.Item, filename string) shared.Item {
 	return shared.Item{}
 }
 
-func fuzzyArtSearch(romFilename string, artList []shared.Item) (string, bool) {
-	threshold := state.GetAppState().Config.FuzzySearchThreshold
-
+func fuzzyArtSearch(romFilename string, artList []shared.Item, threshold float64) (string, bool) {
 	if threshold > .85 || threshold < .5 {
 		threshold = .8 // Default
 	}

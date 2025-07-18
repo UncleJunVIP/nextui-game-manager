@@ -132,6 +132,40 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 				return 0
 			}(),
 		},
+		{
+			Item: gabagool.MenuItem{Text: "Play History Show Archive Tag"},
+			Options: []gabagool.Option{
+				{DisplayName: "True", Value: true},
+				{DisplayName: "False", Value: false},
+			},
+			SelectedOption: func() int {
+				switch appState.Config.PlayHistoryShowArchives {
+				case true:
+					return 0
+				case false:
+					return 1
+				default:
+					return 1
+				}
+			}(),
+		},
+		{
+			Item: gabagool.MenuItem{Text: "Play History Show Collection Tags"},
+			Options: []gabagool.Option{
+				{DisplayName: "True", Value: true},
+				{DisplayName: "False", Value: false},
+			},
+			SelectedOption: func() int {
+				switch appState.Config.PlayHistoryShowCollections {
+				case true:
+					return 0
+				case false:
+					return 1
+				default:
+					return 1
+				}
+			}(),
+		},
 	}
 
 	footerHelpItems := []gabagool.FooterHelpItem{
@@ -176,6 +210,10 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 			} else if option.Item.Text == "Log Level" {
 				logLevelValue := option.Options[option.SelectedOption].Value.(string)
 				appState.Config.LogLevel = logLevelValue
+			} else if option.Item.Text == "Play History Show Archive Tag" {
+				appState.Config.PlayHistoryShowArchives = option.Options[option.SelectedOption].Value.(bool)
+			} else if option.Item.Text == "Play History Show Collection Tags" {
+				appState.Config.PlayHistoryShowCollections = option.Options[option.SelectedOption].Value.(bool)
 			}
 		}
 

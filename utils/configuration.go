@@ -31,6 +31,9 @@ func SaveConfig(config *models.Config) error {
 	viper.Set("hide_empty", config.HideEmpty)
 	viper.Set("show_art", config.ShowArt)
 	viper.Set("log_level", config.LogLevel)
+	viper.Set("play_history_show_collections", config.PlayHistoryShowCollections)
+	viper.Set("play_history_show_archives", config.PlayHistoryShowArchives)
+
 
 	return viper.WriteConfigAs(configFile)
 }

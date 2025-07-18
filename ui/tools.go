@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"nextui-game-manager/models"
+	"nextui-game-manager/state"
 	"qlova.tech/sum"
 )
 
@@ -27,6 +28,13 @@ func (ts ToolsScreen) Draw() (value interface{}, exitCode int, e error) {
 		Metadata: "Global Actions",
 	})
 
+	menuItems = append(menuItems, gabagool.MenuItem{
+		Text:     "Play History",
+		Selected: false,
+		Focused:  false,
+		Metadata: "Play History",
+	})
+
 	options := gabagool.DefaultListOptions("Tools", menuItems)
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
@@ -39,6 +47,7 @@ func (ts ToolsScreen) Draw() (value interface{}, exitCode int, e error) {
 	}
 
 	if selection.IsSome() && selection.Unwrap().SelectedIndex != -1 {
+		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
 		return selection.Unwrap().SelectedItem.Metadata, 0, nil
 	}
 
