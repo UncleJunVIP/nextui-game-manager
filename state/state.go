@@ -124,7 +124,7 @@ func GetPlayMaps() (map[string][]models.PlayHistoryAggregate, map[string]int, in
 
 func updatePlayMaps() {
 	temp := GetAppState()
-	temp.GamePlayMap, temp.ConsolePlayMap, temp.TotalPlay = utils.GenerateCurrentGameStats()
+	temp.GamePlayMap, temp.ConsolePlayMap, temp.TotalPlay = utils.GenerateCurrentGameStats("")
 	UpdateAppState(temp)
 }
 
