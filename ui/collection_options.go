@@ -94,6 +94,12 @@ func (c CollectionOptionsScreen) Draw() (screenReturn interface{}, exitCode int,
 				return nil, 0, nil
 			}
 
+		case models.Actions.CollectionAlphabetize:
+			confirm := utils.ConfirmAction(fmt.Sprintf("Alphabetize %s?\nThis cannot be undone!", c.Collection.DisplayName))
+
+			if confirm {
+				utils.AlphabetizeCollection(c.Collection)
+			}
 		}
 
 		return c.Collection, 2, nil
