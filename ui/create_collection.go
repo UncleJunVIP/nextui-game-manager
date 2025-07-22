@@ -42,17 +42,17 @@ func (c CreateCollectionScreen) Draw() (collection interface{}, exitCode int, e 
 	}
 
 	if res.IsSome() {
-		state.ClearCollectionMap()
-		newCollectionName := strings.ReplaceAll(res.Unwrap(), " ", "")
+		newCollectionName := strings.Trim(res.Unwrap(), " ")
 
 		if newCollectionName == "" {
 			return nil, 2, nil
 		}
 
-		utils.AddCollectionGames(models.Collection{
+		utils.AddCollectionGames(state.GetCollectionMap(), models.Collection{
 			DisplayName:    newCollectionName,
 			CollectionFile: filepath.Join(utils.GetCollectionDirectory(), newCollectionName+".txt"),
 		}, c.Games)
+		state.ClearCollectionMap()
 
 		message := fmt.Sprintf("Created %s!", newCollectionName)
 

@@ -56,7 +56,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 	}
 
 	var collections []models.Collection
-	collectionsMap := make(map[string]models.Collection)
+	collectionMap := state.GetCollectionMap()
 
 	for _, item := range fb.Items {
 		collection := models.Collection{
@@ -74,14 +74,13 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 		membershipCount := 0
 
 		for _, game := range a.Games {
-			if utils.GameExistsInCollection(collection.Games, game) {
+			if utils.GameExistsInCollection(collectionMap, collection, game) {
 				membershipCount++
 			}
 		}
 
 		if len(a.Games) > membershipCount {
 			collections = append(collections, collection)
-			collectionsMap[item.DisplayName] = collection
 		}
 	}
 
@@ -161,10 +160,11 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 
 	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		state.ClearCollectionMap()
+
 		selectedCol := selection.Unwrap().SelectedItem.Metadata.(models.Collection)
 
-		_, err := utils.AddCollectionGames(selectedCol, a.Games)
+		_, err := utils.AddCollectionGames(collectionMap, selectedCol, a.Games)
+		state.ClearCollectionMap()
 
 		if err != nil {
 			gameText := a.Games[0].DisplayName

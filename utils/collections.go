@@ -29,7 +29,7 @@ func DeleteCollection(collection models.Collection) {
 	common.DeleteFile(collection.CollectionFile)
 }
 
-func AddCollectionGames(collection models.Collection, games []shared.Item) (models.Collection, error) {
+func AddCollectionGames(collectionMap map[string][]models.Collection, collection models.Collection, games []shared.Item) (models.Collection, error) {
 	logger := common.GetLoggerInstance()
 
 	if DoesFileExists(collection.CollectionFile) {
@@ -43,7 +43,7 @@ func AddCollectionGames(collection models.Collection, games []shared.Item) (mode
 	}
 
 	for _, game := range games {
-		if GameExistsInCollection(collection.Games, game) {
+		if GameExistsInCollection(collectionMap, collection, game) {
 			logger.Debug("Game already exists in collection", zap.String("path", game.Path))
 			continue
 		}
@@ -53,9 +53,10 @@ func AddCollectionGames(collection models.Collection, games []shared.Item) (mode
 	return collection, SaveCollection(collection)
 }
 
-func GameExistsInCollection(games []shared.Item, targetGame shared.Item) bool {
-	for _, game := range games {
-		if strings.Contains(strings.ToLower(game.Path), strings.ToLower(targetGame.DisplayName)) {
+func GameExistsInCollection(collectionMap map[string][]models.Collection, targetCollection models.Collection, targetGame shared.Item) bool {
+	collectionList := collectionMap[targetGame.DisplayName]
+	for _, collection := range collectionList {
+		if collection.DisplayName == targetCollection.DisplayName {
 			return true
 		}
 	}
@@ -132,27 +133,8 @@ func normalizeCollectionGamePath(game shared.Item) string {
 	return path
 }
 
-func findCollectionsContainingGame(game shared.Item, logger *zap.Logger) []models.Collection {
-	fb := filebrowser.NewFileBrowser(logger)
-	if err := fb.CWD(GetCollectionDirectory(), false); err != nil {
-		return nil
-	}
-
-	var collections []models.Collection
-	for _, item := range fb.Items {
-		collection := models.Collection{
-			DisplayName:    item.DisplayName,
-			CollectionFile: item.Path,
-		}
-
-		if loadedCollection, err := ReadCollection(collection); err == nil {
-			if containsGame(loadedCollection.Games, game) {
-				collections = append(collections, loadedCollection)
-			}
-		}
-	}
-
-	return collections
+func findCollectionsContainingGame(collectionMap map[string][]models.Collection, game shared.Item) []models.Collection {
+	return collectionMap[game.DisplayName]
 }
 
 func containsGame(games []shared.Item, targetGame shared.Item) bool {
