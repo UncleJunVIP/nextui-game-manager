@@ -193,7 +193,7 @@ func handlePlayHistoryFilterTransition(currentScreen models.Screen, result inter
 }
 
 func handlePlayHistoryListTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
-	phls := currentScreen.(ui.PlayHistoryGamesListScreen)
+	phls := currentScreen.(ui.PlayHistoryListScreen)
 	switch code {
 	case ExitCodeSuccess:
 		state.AddNewMenuPosition()

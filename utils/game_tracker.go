@@ -248,9 +248,9 @@ func GenFiltersList(romIds []int, searchFilterString string, existingFilterType 
 	newFilterFormat := ""
 	switch existingFilterType {
 	case YearMonth:
-		newFilterFormat = "STRFTIME('%%Y.%%m.%%d', DATETIME(created_at, 'unixepoch'))"
+		newFilterFormat = "STRFTIME('%Y.%m.%d', DATETIME(created_at, 'unixepoch'))"
 	default:
-		newFilterFormat = "STRFTIME('%%Y.%%m', DATETIME(created_at, 'unixepoch'))"
+		newFilterFormat = "STRFTIME('%Y.%m', DATETIME(created_at, 'unixepoch'))"
 	}
 
 	rows, err := db.Query("SELECT " + newFilterFormat + " as new_filter, " + 

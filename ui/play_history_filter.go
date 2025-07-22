@@ -107,6 +107,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.EnableAction = true
+	options.SmallTitle = true
 	options.EmptyMessage = "Max Filter Depth\nX to save filter"
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
