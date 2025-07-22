@@ -99,6 +99,15 @@ func ReadCollection(collection models.Collection) (models.Collection, error) {
 	return collection, nil
 }
 
+func AlphabetizeCollection(collection models.Collection) models.Collection {
+	slices.SortFunc(collection.Games, func(g1 shared.Item, g2 shared.Item) int {
+		return strings.Compare(g1.DisplayName, g2.DisplayName)
+	})
+
+	SaveCollection(collection)
+	return collection
+}
+
 func SaveCollection(collection models.Collection) error {
 	if err := EnsureDirectoryExists(filepath.Dir(collection.CollectionFile)); err != nil {
 		return fmt.Errorf("failed to create collection directory: %w", err)

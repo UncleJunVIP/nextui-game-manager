@@ -17,6 +17,7 @@ type Action struct {
 	Nuke,
 
 	CollectionRename,
+	CollectionAlphabetize,
 	CollectionDelete,
 	CollectionAdd,
 
@@ -41,10 +42,11 @@ var ActionMap = map[string]sum.Int[Action]{
 	"Nuclear Option":     Actions.Nuke,
 
 	"Rename Collection": Actions.CollectionRename,
+	"Alphabetize Games": Actions.CollectionAlphabetize,
 	"Delete Collection": Actions.CollectionDelete,
 	"Add to Collection": Actions.CollectionAdd,
 
-	"View Play Details":	Actions.PlayHistoryOpen,
+	"View Play Details": Actions.PlayHistoryOpen,
 }
 
 var GlobalActionMap = map[string]sum.Int[Action]{
@@ -77,6 +79,7 @@ var BulkActionKeys = []string{
 }
 
 var CollectionActionKeys = []string{
+	"Alphabetize Games",
 	"Rename Collection",
 	"Delete Collection",
 }
