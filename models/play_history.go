@@ -17,3 +17,10 @@ type PlayHistoryGranular struct {
 	StartTime	int
 	UpdateTime	int
 }
+
+type PlayHistorySearchFilter struct {
+	DisplayName	string
+	SqlFilter	string
+	FilterType	int
+	PlayTime	int
+}
