@@ -54,10 +54,8 @@ func RenameCollection(collection models.Collection, name string) (models.Collect
 	return collection, nil
 }
 
-func renameCollectionEntries(game shared.Item, oldDisplayName string, romDirectory shared.RomDirectory) {
-	logger := common.GetLoggerInstance()
-
-	collections := findCollectionsContainingGame(game, logger)
+func renameCollectionEntries(game shared.Item, oldDisplayName string, romDirectory shared.RomDirectory, collectionMap map[string][]models.Collection) {
+	collections := findCollectionsContainingGame(collectionMap, game)
 	for _, collection := range collections {
 		updateCollectionGamePath(collection, oldDisplayName, game, romDirectory)
 		SaveCollection(collection)
