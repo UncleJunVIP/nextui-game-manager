@@ -248,13 +248,13 @@ func GenFiltersList(romIds []int, searchFilterString string, existingFilterType 
 	newFilterFormat := ""
 	switch existingFilterType {
 	case YearMonth:
-		newFilterFormat = "STRFTIME('%Y.%m.%d', DATETIME(created_at, 'unixepoch'))"
+		newFilterFormat = "STRFTIME('%Y.%m.%d', DATETIME(play_activity.created_at, 'unixepoch'))"
 	default:
-		newFilterFormat = "STRFTIME('%Y.%m', DATETIME(created_at, 'unixepoch'))"
+		newFilterFormat = "STRFTIME('%Y.%m', DATETIME(play_activity.created_at, 'unixepoch'))"
 	}
 
 	rows, err := db.Query("SELECT " + newFilterFormat + " as new_filter, " + 
-						  "sum(play_time) as play_time " +
+						  "sum(play_activity.play_time) as play_time " +
         				  "FROM play_activity " +
 						  whereStr + romWhereStr + andStr + searchFilterString +
         				  "GROUP BY " + newFilterFormat)
