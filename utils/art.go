@@ -171,9 +171,10 @@ func findMatchingArt(artList []shared.Item, filename string, fuzzySearchThreshol
 	})
 
 	// naive search first
-	if idx := slices.IndexFunc(artList, func(art shared.Item) bool {
-		return strings.Contains(strings.ToLower(art.Filename), strings.ToLower(targetName))
-	}); idx != -1 {
+	if idx, found := slices.BinarySearchFunc(artList, targetName, func(item shared.Item, tg string) int {
+		stripExt := strings.TrimSuffix(item.Filename, filepath.Ext(item.Filename))
+		return strings.Compare(strings.ToLower(stripExt), strings.ToLower(tg))
+	}); found {
 		return artList[idx]
 	} else if fuzzyMatch, meetsThreshold := fuzzyArtSearch(targetName, artList, fuzzySearchThreshold); meetsThreshold {
 		return shared.Item{
