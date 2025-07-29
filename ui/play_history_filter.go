@@ -58,29 +58,25 @@ func (phfs PlayHistoryFilterScreen) Name() sum.Int[models.ScreenName] {
 
 // Lists available play History consoles
 func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e error) {
-	title := "Select a Filter"
+	title := "Filter"
+
+	currentFilter := models.PlayHistorySearchFilter{}
+	if len(phfs.PlayHistoryFilterList) != 0 {
+		currentFilter = phfs.PlayHistoryFilterList[len(phfs.PlayHistoryFilterList)-1]
+		title = title + ": " + currentFilter.DisplayName
+	}
 
 	romIds := []int{}
 	if len(phfs.GameAggregate.Id) > 0 {
 		romIds = phfs.GameAggregate.Id
-		title = phfs.GameAggregate.Name
+		title = title + " (" + phfs.GameAggregate.Name[:min(10, len(phfs.GameAggregate.Name))] + ")"
 	} else if phfs.Console != "" {
 		gamePlayMap, _, _ := state.GetPlayMaps()
 		gamesList := gamePlayMap[phfs.Console]
 		for _, game := range gamesList {
 			romIds = append(romIds, game.Id...)
 		}
-		title = phfs.Console
-	}
-
-	currentFilter := models.PlayHistorySearchFilter{}
-	if len(phfs.PlayHistoryFilterList) != 0 {
-		currentFilter = phfs.PlayHistoryFilterList[len(phfs.PlayHistoryFilterList)-1]
-		if title == "Select a Filter" {
-			title = currentFilter.DisplayName
-		} else {
-			title = currentFilter.DisplayName + " : " + title
-		}
+		title = title + " (" + phfs.Console[:min(10, len(phfs.Console))] + ")"
 	}
 
 	filterList := []models.PlayHistorySearchFilter{}
@@ -107,7 +103,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.EnableAction = true
-	options.SmallTitle = true
+	//options.SmallTitle = true
 	options.EmptyMessage = "Max Filter Depth\nX to save filter"
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
