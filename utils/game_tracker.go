@@ -190,20 +190,20 @@ func FindRomHomeFromAggregate(gameAggregate models.PlayHistoryAggregate, showArc
 
 func CollectGameAggregateFromGame(gameItem shared.Item, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate, string) {
 	console := extractItemConsoleName(gameItem)
-	return CollectGameAggregateFromGameName(gameItem.DisplayName, console, gamePlayMap), console
+	return CollectGameAggregateFromGamePath(gameItem.Path, console, gamePlayMap), console
 }
 
-func CollectGameAggregateFromGameName(gameName string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate) {
+func CollectGameAggregateFromGamePath(gamePath string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate) {
 	PlayHistoryList := gamePlayMap[console]
 
 	for _, gameAggregate := range PlayHistoryList {
-		if gameAggregate.Name == gameName {
+		if gameAggregate.Path == gamePath {
 			return gameAggregate
 		}
 	}
 
 	return models.PlayHistoryAggregate{
-		Name: gameName,
+		Name: extractGameName(gamePath),
 		PlayTimeTotal: 0,
 		PlayCountTotal: 0,
 	}
@@ -475,6 +475,15 @@ func extractItemConsoleName(gameItem shared.Item) string {
 		return ""
 	}
 	return pathSplit[4]
+}
+
+func extractGameName(romFilePath string) string {
+	if romFilePath == "" {
+		return romFilePath
+	}
+	pathParts := strings.Split(romFilePath, "/")
+	
+	return removeFileExtension(pathParts[len(pathParts)-1])
 }
 
 func ConvertSecondsToHumanReadable(gameTimeSeconds int) string {

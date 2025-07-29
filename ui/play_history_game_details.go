@@ -71,12 +71,10 @@ func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCod
 	logger := common.GetLoggerInstance()
 
 	gamePlayMap, consolePlayMap, totalPlay := state.GetPlayMaps()
-	title := ptgds.GameAggregate.Name
-
-	gameAggregate := utils.CollectGameAggregateFromGameName(ptgds.GameAggregate.Name, ptgds.Console, gamePlayMap)
+	gameAggregate := utils.CollectGameAggregateFromGamePath(ptgds.GameAggregate.Path, ptgds.Console, gamePlayMap)
+	title := gameAggregate.Name
 
 	var sections []gaba.Section
-
 	sections = append(sections, gaba.NewInfoSection(
 		title,
 		[]gaba.MetadataItem{

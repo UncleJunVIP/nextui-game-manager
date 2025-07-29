@@ -135,6 +135,5 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		return newFilter, 0, nil
 	}
 
-	state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
 	return nil, 2, nil
 }
