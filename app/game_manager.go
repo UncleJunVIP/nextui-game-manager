@@ -186,6 +186,9 @@ func handlePlayHistoryFilterTransition(currentScreen models.Screen, result inter
 				phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
 				phfs.PlayHistoryFilterList[:len(phfs.PlayHistoryFilterList)-1], phfs.MenuDepth)
 		}
+		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+			phfs.PlayHistoryFilterList, phfs.MenuDepth)
 	}
 	state.RemoveMenuPositions(phfs.MenuDepth)
 	state.UpdateCurrentMenuPosition(0, 0)

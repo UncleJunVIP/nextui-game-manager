@@ -37,7 +37,7 @@ func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, 
 	} else {
 		currentFilter := ptgls.PlayHistoryFilterList[len(ptgls.PlayHistoryFilterList)-1]
 		gamePlayMap, consoleMap, _ = utils.GenerateCurrentGameStats(currentFilter.SqlFilter)
-		title = fmt.Sprintf("%s : %.1fH : %s", currentFilter.DisplayName, float64(consoleMap[ptgls.Console])/3600.0, ptgls.Console)
+		title = fmt.Sprintf("%s : %s", currentFilter.DisplayName, ptgls.Console)
 	}
 
 	gamesList := gamePlayMap[ptgls.Console]

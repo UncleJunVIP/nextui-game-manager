@@ -106,9 +106,12 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	//options.SmallTitle = true
 	options.EmptyMessage = "Max Filter Depth\nX to save filter"
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Save Filter"},
 		{ButtonName: "A", HelpText: "Select"},
+	}
+
+	if len(phfs.PlayHistoryFilterList) > 0 {
+		options.FooterHelpItems = append([]gaba.FooterHelpItem{{ButtonName: "B", HelpText: "Back"},}, options.FooterHelpItems...)
 	}
 
 	selection, err := gaba.List(options)
@@ -124,5 +127,6 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		return newFilter, 0, nil
 	}
 
+	state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
 	return nil, 2, nil
 }
