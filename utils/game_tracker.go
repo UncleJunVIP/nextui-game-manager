@@ -190,19 +190,23 @@ func FindRomHomeFromAggregate(gameAggregate models.PlayHistoryAggregate, showArc
 
 func CollectGameAggregateFromGame(gameItem shared.Item, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate, string) {
 	console := extractItemConsoleName(gameItem)
+	return CollectGameAggregateFromGameName(gameItem.DisplayName, console, gamePlayMap), console
+}
+
+func CollectGameAggregateFromGameName(gameName string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate) {
 	PlayHistoryList := gamePlayMap[console]
 
 	for _, gameAggregate := range PlayHistoryList {
-		if gameAggregate.Name == gameItem.DisplayName {
-			return gameAggregate, console
+		if gameAggregate.Name == gameName {
+			return gameAggregate
 		}
 	}
 
 	return models.PlayHistoryAggregate{
-		Name: gameItem.DisplayName,
+		Name: gameName,
 		PlayTimeTotal: 0,
 		PlayCountTotal: 0,
-	}, console
+	}
 }
 
 func convertIntListToStringList(intList []int) []string {

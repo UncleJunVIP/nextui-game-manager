@@ -70,17 +70,10 @@ func (ptgds PlayHistoryGameDetailsScreen) Name() sum.Int[models.ScreenName] {
 func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCode int, e error) {
 	logger := common.GetLoggerInstance()
 
-	var consolePlayMap map[string]int
-	var totalPlay int 
-	var title string
-	if len(ptgds.PlayHistoryFilterList) == 0 {
-		_, consolePlayMap, totalPlay = state.GetPlayMaps()
-		title = ptgds.GameAggregate.Name
-	} else {
-		currentFilter := ptgds.PlayHistoryFilterList[len(ptgds.PlayHistoryFilterList)-1]
-		_, consolePlayMap, totalPlay = utils.GenerateCurrentGameStats(currentFilter.SqlFilter)
-		title = fmt.Sprintf("%s : %s", currentFilter.DisplayName, ptgds.GameAggregate.Name)
-	}
+	gamePlayMap, consolePlayMap, totalPlay := state.GetPlayMaps()
+	title := ptgds.GameAggregate.Name
+
+	gameAggregate := utils.CollectGameAggregateFromGameName(ptgds.GameAggregate.Name, ptgds.Console, gamePlayMap)
 
 	var sections []gaba.Section
 
@@ -88,13 +81,13 @@ func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCod
 		title,
 		[]gaba.MetadataItem{
 			{Label: "Console", 			Value: ptgds.Console},
-			{Label: "First Played", 	Value: ptgds.GameAggregate.FirstPlayedTime.Format(time.UnixDate)},
-			{Label: "Last Played", 		Value: ptgds.GameAggregate.LastPlayedTime.Format(time.UnixDate)},
-			{Label: "Play Sessions", 	Value: strconv.Itoa(ptgds.GameAggregate.PlayCountTotal)},
-			{Label: "Total Play Time", 	Value: utils.ConvertSecondsToHumanReadable(ptgds.GameAggregate.PlayTimeTotal)},
-			{Label: "Average Session", 	Value: utils.ConvertSecondsToHumanReadable(ptgds.GameAggregate.PlayTimeTotal/ptgds.GameAggregate.PlayCountTotal)},
-			{Label: "Pct of Total", 	Value: fmt.Sprintf("%.2f%%", (float64(ptgds.GameAggregate.PlayTimeTotal)/float64(totalPlay))*100)},
-			{Label: "Pct of Console", 	Value: fmt.Sprintf("%.2f%%", (float64(ptgds.GameAggregate.PlayTimeTotal)/float64(consolePlayMap[ptgds.Console]))*100)},
+			{Label: "First Played", 	Value: gameAggregate.FirstPlayedTime.Format(time.UnixDate)},
+			{Label: "Last Played", 		Value: gameAggregate.LastPlayedTime.Format(time.UnixDate)},
+			{Label: "Play Sessions", 	Value: strconv.Itoa(gameAggregate.PlayCountTotal)},
+			{Label: "Total Play Time", 	Value: utils.ConvertSecondsToHumanReadable(gameAggregate.PlayTimeTotal)},
+			{Label: "Average Session", 	Value: utils.ConvertSecondsToHumanReadable(gameAggregate.PlayTimeTotal/gameAggregate.PlayCountTotal)},
+			{Label: "Pct of Total", 	Value: fmt.Sprintf("%.2f%%", (float64(gameAggregate.PlayTimeTotal)/float64(totalPlay))*100)},
+			{Label: "Pct of Console", 	Value: fmt.Sprintf("%.2f%%", (float64(gameAggregate.PlayTimeTotal)/float64(consolePlayMap[ptgds.Console]))*100)},
 		},
 	))
 

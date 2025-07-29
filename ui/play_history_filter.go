@@ -8,6 +8,7 @@ import (
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 	"qlova.tech/sum"
+	"strings"
 )
 
 type PlayHistoryFilterScreen struct {
@@ -69,14 +70,21 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	romIds := []int{}
 	if len(phfs.GameAggregate.Id) > 0 {
 		romIds = phfs.GameAggregate.Id
-		title = title + " (" + phfs.GameAggregate.Name[:min(10, len(phfs.GameAggregate.Name))] + ")"
+		title = title + " (" + phfs.GameAggregate.Name + ")"
 	} else if phfs.Console != "" {
 		gamePlayMap, _, _ := state.GetPlayMaps()
 		gamesList := gamePlayMap[phfs.Console]
 		for _, game := range gamesList {
 			romIds = append(romIds, game.Id...)
 		}
-		title = title + " (" + phfs.Console[:min(10, len(phfs.Console))] + ")"
+
+		startIndex := strings.LastIndex(phfs.Console, "(")
+		endIndex := strings.LastIndex(phfs.Console, ")")
+		if startIndex == -1 || endIndex == -1 || startIndex >= endIndex {
+			title = title + " (" + phfs.Console + ")"
+		} else {
+			title = title + phfs.Console[startIndex : endIndex+1]
+		}
 	}
 
 	filterList := []models.PlayHistorySearchFilter{}

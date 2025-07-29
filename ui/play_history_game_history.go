@@ -49,7 +49,7 @@ func (ptghs PlayHistoryGameHistoryScreen) Draw() (item interface{}, exitCode int
 	} else {
 		currentFilter := ptghs.PlayHistoryFilterList[len(ptghs.PlayHistoryFilterList)-1]
 		playHistory = utils.GenerateSingleGameGranularRecords(ptghs.GameAggregate.Id, currentFilter.SqlFilter)
-		title = fmt.Sprintf("%s : %s", currentFilter.DisplayName, ptghs.GameAggregate.Name)
+		title = fmt.Sprintf("%s: %s", currentFilter.DisplayName, ptghs.GameAggregate.Name)
 	}
 
 	var menuItems []gaba.MenuItem

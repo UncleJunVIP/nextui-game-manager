@@ -37,7 +37,7 @@ func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e erro
 	} else {
 		currentFilter := ptls.PlayHistoryFilterList[len(ptls.PlayHistoryFilterList)-1]
 		_, consolePlayMap, totalPlay = utils.GenerateCurrentGameStats(currentFilter.SqlFilter)
-		title = fmt.Sprintf("%s : %.1f Total Hours Played", currentFilter.DisplayName, float64(totalPlay)/3600.0)
+		title = fmt.Sprintf("%s: %.1f Total Hours Played", currentFilter.DisplayName, float64(totalPlay)/3600.0)
 	}
 
 	if consolePlayMap == nil || len(consolePlayMap) == 0 {
