@@ -83,7 +83,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		if startIndex == -1 || endIndex == -1 || startIndex >= endIndex {
 			title = title + " (" + phfs.Console + ")"
 		} else {
-			title = title + phfs.Console[startIndex : endIndex+1]
+			title = title + " " + phfs.Console[startIndex : endIndex+1]
 		}
 	}
 
