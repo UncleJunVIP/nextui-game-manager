@@ -149,24 +149,68 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 	case models.ScreenNames.ArchiveOptions:
 		return handleArchiveOptionsTransition(currentScreen, result, code)
 	case models.ScreenNames.PlayHistoryList:
-		return handlePlayHistoryListTransition(result, code)
+		return handlePlayHistoryListTransition(currentScreen, result, code)
 	case models.ScreenNames.PlayHistoryGameList:
 		return handlePlayHistoryGameListTransition(currentScreen, result, code)
 	case models.ScreenNames.PlayHistoryGameDetails:
 		return handlePlayHistoryGameDetailsTransition(currentScreen, result, code)
 	case models.ScreenNames.PlayHistoryGameHistory:
 		return handlePlayHistoryGameHistoryTransition(currentScreen, result, code)
+	case models.ScreenNames.PlayHistoryFilter:
+		return handlePlayHistoryFilterTransition(currentScreen, result, code)
 	default:
 		state.ReturnToMain()
 		return ui.InitMainMenu()
 	}
 }
 
-func handlePlayHistoryListTransition(result interface{}, code int) models.Screen {
+func handlePlayHistoryFilterTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	phfs := currentScreen.(ui.PlayHistoryFilterScreen)
+	switch code {
+	case ExitCodeSuccess:
+		newFilter := result.(models.PlayHistorySearchFilter)
+		state.AddNewMenuPosition()
+		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+			append(phfs.PlayHistoryFilterList, newFilter), phfs.MenuDepth+1)
+	case ExitCodeCancel:
+		if len(phfs.PlayHistoryFilterList) > 0 {
+			if phfs.MenuDepth > 1 {
+				state.RemoveMenuPositions(1)
+				return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+					phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+					phfs.PlayHistoryFilterList[:len(phfs.PlayHistoryFilterList)-1], phfs.MenuDepth-1)
+			}
+			state.UpdateCurrentMenuPosition(0, 0)
+			return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+				phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+				phfs.PlayHistoryFilterList[:len(phfs.PlayHistoryFilterList)-1], phfs.MenuDepth)
+		}
+		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+			phfs.PlayHistoryFilterList, phfs.MenuDepth)
+	}
+	state.RemoveMenuPositions(phfs.MenuDepth)
+	state.UpdateCurrentMenuPosition(0, 0)
+	if phfs.Console == "" {
+		return ui.InitPlayHistoryListScreen(phfs.PlayHistoryFilterList)
+	}
+	if phfs.GameAggregate.Name == "" {
+		return ui.InitPlayHistoryGamesListScreen(phfs.Console, phfs.PlayHistoryFilterList)
+	}
+	return ui.InitPlayHistoryGameHistoryScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+		phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, phfs.PlayHistoryFilterList)
+}
+
+func handlePlayHistoryListTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	phls := currentScreen.(ui.PlayHistoryListScreen)
 	switch code {
 	case ExitCodeSuccess:
 		state.AddNewMenuPosition()
-		return ui.InitPlayHistoryGamesListScreen(result.(string), "")
+		return ui.InitPlayHistoryGamesListScreen(result.(string), phls.PlayHistoryFilterList)
+	case ExitCodeAction:
+		state.AddNewMenuPosition()
+		return ui.InitPlayHistoryFilterScreenFromHistoryList(phls.PlayHistoryFilterList)
 	default:
 		state.RemoveMenuPositions(1)
 		return ui.InitToolsScreen()
@@ -179,44 +223,38 @@ func handlePlayHistoryGameListTransition(currentScreen models.Screen, result int
 	switch code {
 	case ExitCodeSuccess:
 		state.AddNewMenuPosition()
-		return ui.InitPlayHistoryGameDetailsScreenFromPlayHistory(ptgls.Console, ptgls.SearchFilter, result.(models.PlayHistoryAggregate))
+		return ui.InitPlayHistoryGameDetailsScreenFromPlayHistory(ptgls.Console, result.(models.PlayHistoryAggregate), ptgls.PlayHistoryFilterList)
 	case ExitCodeCancel:
-		if ptgls.SearchFilter != "" {
-			state.UpdateCurrentMenuPosition(0, 0)
-			return ui.InitPlayHistoryGamesListScreen(ptgls.Console, "")
-		}
-
 		state.RemoveMenuPositions(1)
-		return ui.InitPlayHistoryListScreen()
-	case ExitCodeAction, ExitCodeError:
-		searchFilter := result.(string)
-
-		if searchFilter != "" {
-			state.UpdateCurrentMenuPosition(0, 0)
-			return ui.InitPlayHistoryGamesListScreen(ptgls.Console, searchFilter)
-		}
-
-		return ui.InitPlayHistoryGamesListScreen(ptgls.Console, "")
+		return ui.InitPlayHistoryListScreen(ptgls.PlayHistoryFilterList)
+	case ExitCodeAction:
+		state.AddNewMenuPosition()
+		return ui.InitPlayHistoryFilterScreenFromGameList(ptgls.Console, ptgls.PlayHistoryFilterList)
 	case ExitCodeEmpty:
-		if ptgls.SearchFilter != "" {
-			utils.ShowTimedMessage(fmt.Sprintf("No results found for %s!", ptgls.SearchFilter), shortMessageDelay)
-			state.UpdateCurrentMenuPosition(0, 0)
-			return ui.InitPlayHistoryGamesListScreen(ptgls.Console, "")
-		}
-
 		utils.ShowTimedMessage(fmt.Sprintf("%s history is empty!", ptgls.Console), longMessageDelay)
 		state.RemoveMenuPositions(1)
-		return ui.InitPlayHistoryListScreen()
+		return ui.InitPlayHistoryListScreen(ptgls.PlayHistoryFilterList)
 	default:
 		state.RemoveMenuPositions(1)
-		return ui.InitPlayHistoryListScreen()
+		return ui.InitPlayHistoryListScreen(ptgls.PlayHistoryFilterList)
 	}
 }
 
 func handlePlayHistoryGameHistoryTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
 	ptghs := currentScreen.(ui.PlayHistoryGameHistoryScreen)
-	return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
-		ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin)
+
+	switch code {
+	case ExitCodeSuccess:
+		return ui.InitPlayHistoryGameHistoryScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList)
+	case ExitCodeAction:
+		state.AddNewMenuPosition()
+		return ui.InitPlayHistoryFilterScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList, 1)
+	default:
+		return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList)
+	}
 }
 
 func handlePlayHistoryGameDetailsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
@@ -224,11 +262,11 @@ func handlePlayHistoryGameDetailsTransition(currentScreen models.Screen, result 
 	switch code {
 	case ExitCodeSuccess:
 		return ui.InitPlayHistoryGameHistoryScreen(ptgds.Console, ptgds.SearchFilter, ptgds.GameAggregate, 
-		ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin)
+		ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin, ptgds.PlayHistoryFilterList)
 	default:
 		state.RemoveMenuPositions(1)
 		if ptgds.PlayHistoryOrigin {
-			return ui.InitPlayHistoryGamesListScreen(ptgds.Console, ptgds.SearchFilter)
+			return ui.InitPlayHistoryGamesListScreen(ptgds.Console, ptgds.PlayHistoryFilterList)
 		}
 		return ui.InitActionsScreen(ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.SearchFilter)
 	}
@@ -421,7 +459,7 @@ func handleToolsTransition(result interface{}, code int) models.Screen {
 		case "Global Actions":
 			return ui.InitGlobalActionsScreen()
 		case "Play History":
-			return ui.InitPlayHistoryListScreen()
+			return ui.InitPlayHistoryListScreen(nil)
 		}
 		return ui.InitToolsScreen()
 	case ExitCodeAction:

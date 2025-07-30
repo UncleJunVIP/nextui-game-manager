@@ -10,14 +10,14 @@ import (
 )
 
 type PlayHistoryGamesListScreen struct {
-	Console         string
-	SearchFilter	string
+	Console         		string
+	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
 }
 
-func InitPlayHistoryGamesListScreen(console string, searchFilter string) PlayHistoryGamesListScreen {
+func InitPlayHistoryGamesListScreen(console string, filterList []models.PlayHistorySearchFilter) PlayHistoryGamesListScreen {
 	return PlayHistoryGamesListScreen{
-		Console:              console,
-		SearchFilter:         searchFilter,
+		Console:              	console,
+		PlayHistoryFilterList:  filterList,
 	}
 }
 
@@ -27,16 +27,20 @@ func (ptgls PlayHistoryGamesListScreen) Name() sum.Int[models.ScreenName] {
 
 func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, e error) {
 	appState := state.GetAppState()
-	gamePlayMap, consoleMap, _ := state.GetPlayMaps()
 
-	title := fmt.Sprintf("%.1fH : %s", float64(consoleMap[ptgls.Console])/3600.0, ptgls.Console)
+	var gamePlayMap map[string][]models.PlayHistoryAggregate
+	var consoleMap map[string]int
+	var title string
+	if len(ptgls.PlayHistoryFilterList) == 0 {
+		gamePlayMap, consoleMap, _ = state.GetPlayMaps()
+		title = fmt.Sprintf("%.1fH : %s", float64(consoleMap[ptgls.Console])/3600.0, ptgls.Console)
+	} else {
+		currentFilter := ptgls.PlayHistoryFilterList[len(ptgls.PlayHistoryFilterList)-1]
+		gamePlayMap, consoleMap, _ = utils.GenerateCurrentGameStats(currentFilter.SqlFilter)
+		title = fmt.Sprintf("%s: %s", currentFilter.DisplayName, ptgls.Console)
+	}
 
 	gamesList := gamePlayMap[ptgls.Console]
-
-	if ptgls.SearchFilter != "" {
-		title = "[Search: \"" + ptgls.SearchFilter + "\"]"
-		gamesList = utils.FilterPlayList(gamesList, ptgls.SearchFilter)
-	}
 
 	var menuItems []gaba.MenuItem
 	collectionMap := state.GetCollectionMap()
@@ -74,7 +78,7 @@ func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, 
 	options.EnableAction = true
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "X", HelpText: "Search"},
+		{ButtonName: "X", HelpText: "Filter"},
 		{ButtonName: "Menu", HelpText: "Help"},
 		{ButtonName: "A", HelpText: "Details"},
 	}
@@ -95,16 +99,6 @@ func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, 
 
 	if selection.IsSome() && selection.Unwrap().ActionTriggered {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		query, err := gaba.Keyboard("")
-
-		if err != nil {
-			return nil, 1, err
-		}
-
-		if query.IsSome() {
-			return query.Unwrap(), 4, nil
-		}
-
 		return nil, 4, nil
 	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
