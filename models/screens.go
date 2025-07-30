@@ -32,6 +32,7 @@ type ScreenName struct {
 	PlayHistoryGameHistory,
 	PlayHistoryGameList,
 	PlayHistoryList,
+	PlayHistoryFilter,
 
 	GlobalActions sum.Int[ScreenName]
 }
