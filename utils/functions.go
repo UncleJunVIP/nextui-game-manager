@@ -15,6 +15,7 @@ import (
 const (
 	gameTrackerDBPath  = "/mnt/SDCARD/.userdata/shared/game_logs.sqlite"
 	saveFileDirectory  = "/mnt/SDCARD/Saves/"
+	cheatDirectory     = "/mnt/SDCARD/Cheats/"
 	RecentlyPlayedFile = "/mnt/SDCARD/.userdata/shared/.minui/recent.txt"
 	defaultDirPerm     = 0755
 	defaultFilePerm    = 0644
@@ -54,6 +55,13 @@ func GetSaveFileDirectory() string {
 		return os.Getenv("SAVE_FILE_DIRECTORY")
 	}
 	return saveFileDirectory
+}
+
+func GetCheatDirectory() string {
+	if IsDev() {
+		return os.Getenv("CHEAT_DIRECTORY")
+	}
+	return cheatDirectory
 }
 
 func GetGameTrackerDBPath() string {

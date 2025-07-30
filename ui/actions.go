@@ -49,6 +49,14 @@ func (a ActionsScreen) Draw() (action interface{}, exitCode int, e error) {
 		actions = utils.InsertIntoSlice(actions, 1, "Delete Art")
 	}
 
+	_, hasCheat := utils.FindExistingCheat(a.Game, a.RomDirectory)
+
+	if hasCheat {
+		actions = utils.InsertIntoSlice(actions, 2, "Delete Cheat File")
+	} else if utils.CheatFileAvailable(a.Game, a.RomDirectory) {
+		actions = utils.InsertIntoSlice(actions, 2, "Download Cheat File")
+	}
+
 	gamePlayMap, _, _ := state.GetPlayMaps()
 	gameAggregate, _ := utils.CollectGameAggregateFromGame(a.Game, gamePlayMap)
 	if gameAggregate.PlayCountTotal != 0 {

@@ -215,7 +215,7 @@ func handlePlayHistoryGameListTransition(currentScreen models.Screen, result int
 
 func handlePlayHistoryGameHistoryTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
 	ptghs := currentScreen.(ui.PlayHistoryGameHistoryScreen)
-	return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+	return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate,
 		ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin)
 }
 
@@ -223,8 +223,8 @@ func handlePlayHistoryGameDetailsTransition(currentScreen models.Screen, result 
 	ptgds := currentScreen.(ui.PlayHistoryGameDetailsScreen)
 	switch code {
 	case ExitCodeSuccess:
-		return ui.InitPlayHistoryGameHistoryScreen(ptgds.Console, ptgds.SearchFilter, ptgds.GameAggregate, 
-		ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin)
+		return ui.InitPlayHistoryGameHistoryScreen(ptgds.Console, ptgds.SearchFilter, ptgds.GameAggregate,
+			ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin)
 	default:
 		state.RemoveMenuPositions(1)
 		if ptgds.PlayHistoryOrigin {
