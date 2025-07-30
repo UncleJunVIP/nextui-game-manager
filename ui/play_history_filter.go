@@ -96,7 +96,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	
 	for _, filter := range filterList {
 		filterItem := gaba.MenuItem{
-			Text:     fmt.Sprintf("%s : %.1fH",filter.DisplayName, min(9999, float64(filter.PlayTime)/3600.0)),
+			Text:     fmt.Sprintf("%s : %s",filter.DisplayName, utils.ConvertSecondsToHumanReadable(filter.PlayTime)),
 			Selected: false,
 			Focused:  false,
 			Metadata: filter,
