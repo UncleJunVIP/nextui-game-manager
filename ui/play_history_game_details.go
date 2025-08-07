@@ -22,14 +22,15 @@ type PlayHistoryGameDetailsScreen struct {
 	RomDirectory         	shared.RomDirectory
 	PreviousRomDirectory 	shared.RomDirectory
 	PlayHistoryOrigin		bool
+	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
 }
 
-func InitPlayHistoryGameDetailsScreenFromPlayHistory(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate) PlayHistoryGameDetailsScreen {
+func InitPlayHistoryGameDetailsScreenFromPlayHistory(console string, gameAggregate models.PlayHistoryAggregate, filterList []models.PlayHistorySearchFilter) PlayHistoryGameDetailsScreen {
 	return PlayHistoryGameDetailsScreen{
 		Console:      		console,
-		SearchFilter: 		searchFilter,
 		GameAggregate: 		gameAggregate,
 		PlayHistoryOrigin: 	true,
+		PlayHistoryFilterList:  filterList,
 	}
 }
 
@@ -49,7 +50,7 @@ func InitPlayHistoryGameDetailsScreenFromActions(game shared.Item, romDirectory 
 }
 
 func InitPlayHistoryGameDetailsScreenFromSelf(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate, game shared.Item, 
-	romDirectory shared.RomDirectory, previousRomDirectory shared.RomDirectory, playHistoryOrigin bool) PlayHistoryGameDetailsScreen {
+	romDirectory shared.RomDirectory, previousRomDirectory shared.RomDirectory, playHistoryOrigin bool, filterList []models.PlayHistorySearchFilter) PlayHistoryGameDetailsScreen {
 	return PlayHistoryGameDetailsScreen{
 		Console:				console,
 		SearchFilter: 			searchFilter,
@@ -58,6 +59,7 @@ func InitPlayHistoryGameDetailsScreenFromSelf(console string, searchFilter strin
 		RomDirectory: 			romDirectory,
 		PreviousRomDirectory:	previousRomDirectory,
 		PlayHistoryOrigin: 		playHistoryOrigin,
+		PlayHistoryFilterList:  filterList,
 	}
 }
 
@@ -68,30 +70,24 @@ func (ptgds PlayHistoryGameDetailsScreen) Name() sum.Int[models.ScreenName] {
 func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCode int, e error) {
 	logger := common.GetLoggerInstance()
 
-	var sections []gaba.Section
+	gamePlayMap, consolePlayMap, totalPlay := state.GetPlayMaps()
+	gameAggregate := utils.CollectGameAggregateFromGamePath(ptgds.GameAggregate.Path, ptgds.Console, gamePlayMap)
+	title := gameAggregate.Name
 
-	_, consolePlayMap, totalPlay := state.GetPlayMaps()
+	var sections []gaba.Section
 	sections = append(sections, gaba.NewInfoSection(
-		ptgds.GameAggregate.Name,
+		title,
 		[]gaba.MetadataItem{
 			{Label: "Console", 			Value: ptgds.Console},
-			{Label: "First Played", 	Value: ptgds.GameAggregate.FirstPlayedTime.Format(time.UnixDate)},
-			{Label: "Last Played", 		Value: ptgds.GameAggregate.LastPlayedTime.Format(time.UnixDate)},
-			{Label: "Play Sessions", 	Value: strconv.Itoa(ptgds.GameAggregate.PlayCountTotal)},
-			{Label: "Total Play Time", 	Value: utils.ConvertSecondsToHumanReadable(ptgds.GameAggregate.PlayTimeTotal)},
-			{Label: "Average Session", 	Value: utils.ConvertSecondsToHumanReadable(ptgds.GameAggregate.PlayTimeTotal/ptgds.GameAggregate.PlayCountTotal)},
-			{Label: "Pct of Total", 	Value: fmt.Sprintf("%.2f%%", (float64(ptgds.GameAggregate.PlayTimeTotal)/float64(totalPlay))*100)},
-			{Label: "Pct of Console", 	Value: fmt.Sprintf("%.2f%%", (float64(ptgds.GameAggregate.PlayTimeTotal)/float64(consolePlayMap[ptgds.Console]))*100)},
+			{Label: "First Played", 	Value: gameAggregate.FirstPlayedTime.Format(time.UnixDate)},
+			{Label: "Last Played", 		Value: gameAggregate.LastPlayedTime.Format(time.UnixDate)},
+			{Label: "Play Sessions", 	Value: strconv.Itoa(gameAggregate.PlayCountTotal)},
+			{Label: "Total Play Time", 	Value: utils.ConvertSecondsToHumanReadable(gameAggregate.PlayTimeTotal)},
+			{Label: "Average Session", 	Value: utils.ConvertSecondsToHumanReadable(gameAggregate.PlayTimeTotal/gameAggregate.PlayCountTotal)},
+			{Label: "Pct of Total", 	Value: fmt.Sprintf("%.2f%%", (float64(gameAggregate.PlayTimeTotal)/float64(totalPlay))*100)},
+			{Label: "Pct of Console", 	Value: fmt.Sprintf("%.2f%%", (float64(gameAggregate.PlayTimeTotal)/float64(consolePlayMap[ptgds.Console]))*100)},
 		},
 	))
-
-	// sections = append(sections, gaba.NewImageSection(
-	// 	"Pak Repository",
-	// 	"", //                                                   add a filePath string
-	// 	int32(256),
-	// 	int32(256),
-	// 	gaba.AlignCenter,
-	// ))
 
 	options := gaba.DefaultInfoScreenOptions()
 	options.Sections = sections

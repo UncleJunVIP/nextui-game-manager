@@ -190,19 +190,23 @@ func FindRomHomeFromAggregate(gameAggregate models.PlayHistoryAggregate, showArc
 
 func CollectGameAggregateFromGame(gameItem shared.Item, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate, string) {
 	console := extractItemConsoleName(gameItem)
+	return CollectGameAggregateFromGamePath(gameItem.Path, console, gamePlayMap), console
+}
+
+func CollectGameAggregateFromGamePath(gamePath string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate) {
 	PlayHistoryList := gamePlayMap[console]
 
 	for _, gameAggregate := range PlayHistoryList {
-		if gameAggregate.Name == gameItem.DisplayName {
-			return gameAggregate, console
+		if gameAggregate.Path == gamePath {
+			return gameAggregate
 		}
 	}
 
 	return models.PlayHistoryAggregate{
-		Name: gameItem.DisplayName,
+		Name: extractGameName(gamePath),
 		PlayTimeTotal: 0,
 		PlayCountTotal: 0,
-	}, console
+	}
 }
 
 func convertIntListToStringList(intList []int) []string {
@@ -213,7 +217,75 @@ func convertIntListToStringList(intList []int) []string {
 	return stringList
 }
 
-func GenerateSingleGameGranularRecords(romIds []int) []models.PlayHistoryGranular {
+const (
+	NoFilter		= 0   // No filter
+	YearMonth       = 1   // YearMonth Filter
+)
+
+func GenFiltersList(romIds []int, searchFilterString string, existingFilterType int) []models.PlayHistorySearchFilter {
+	logger := common.GetLoggerInstance()
+	db, err := openGameTrackerDB()
+	if err != nil {
+		return nil
+	}
+	defer closeDB(db)
+
+	// If any roms are selected by parents, filter for those roms
+	romWhereStr := ""
+	if len(romIds) > 0 {
+		romWhereStr = " rom_id in ('" + strings.Join(convertIntListToStringList(romIds), "','") + "') "
+	}
+
+	// rom filters or search filters are present, include WHERE clause
+	whereStr := ""
+	if romWhereStr != "" || searchFilterString != "" {
+		whereStr = " WHERE "
+	}
+
+	// rom filters and search filters are present, include AND clause
+	andStr := ""
+	if romWhereStr != "" && searchFilterString != "" {
+		andStr = " AND "
+	}
+
+	// Generate date string modifier constructs
+	newFilterFormat := ""
+	switch existingFilterType {
+	case YearMonth:
+		newFilterFormat = "STRFTIME('%Y.%m.%d', DATETIME(play_activity.created_at, 'unixepoch', 'localtime'))"
+	default:
+		newFilterFormat = "STRFTIME('%Y.%m', DATETIME(play_activity.created_at, 'unixepoch', 'localtime'))"
+	}
+
+	rows, err := db.Query("SELECT " + newFilterFormat + " as new_filter, " + 
+						  "sum(play_activity.play_time) as play_time " +
+        				  "FROM play_activity " +
+						  whereStr + romWhereStr + andStr + searchFilterString +
+        				  "GROUP BY " + newFilterFormat)
+	defer rows.Close()
+
+	var filterList []models.PlayHistorySearchFilter
+	for rows.Next() {
+		var newFilter 	string
+		var playTime 	int
+		if err := rows.Scan(&newFilter, &playTime); err != nil {
+			logger.Error("Failed to load game tracker data", zap.Error(err))
+		}
+
+		singleFilter := models.PlayHistorySearchFilter{
+			DisplayName:	newFilter,
+			SqlFilter: 		newFilterFormat + " = '" + newFilter + "'",
+			FilterType:		existingFilterType + 1,
+			PlayTime:		playTime,
+		}
+
+		filterList = append(filterList, singleFilter)
+	}
+
+	return filterList
+}
+
+func GenerateSingleGameGranularRecords(romIds []int, searchFilter string) []models.PlayHistoryGranular {
 	if len(romIds) == 0 {
 		return nil
 	}
@@ -227,9 +299,15 @@ func GenerateSingleGameGranularRecords(romIds []int) []models.PlayHistoryGranula
 
 	romIdString := strings.Join(convertIntListToStringList(romIds), "','")
 
+	whereMod := ""
+	if searchFilter != "" {
+		whereMod = " and " + searchFilter + " "
+	}
+
 	rows, err := db.Query("SELECT play_time, created_at, updated_at " +
         				  "FROM play_activity " +
 						  "WHERE rom_id in ('"+romIdString+"') " +
+						  whereMod +
         				  "ORDER BY created_at")
 	defer rows.Close()
 
@@ -253,13 +331,18 @@ func GenerateSingleGameGranularRecords(romIds []int) []models.PlayHistoryGranula
 	return granularList
 }
 
-func GenerateCurrentGameStats() (map[string][]models.PlayHistoryAggregate, map[string]int, int) {
+func GenerateCurrentGameStats(searchFilter string) (map[string][]models.PlayHistoryAggregate, map[string]int, int) {
 	logger := common.GetLoggerInstance()
 	db, err := openGameTrackerDB()
 	if err != nil {
 		return nil, nil, 0
 	}
 	defer closeDB(db)
+
+	whereMod := ""
+	if searchFilter != "" {
+		whereMod = " WHERE " + searchFilter + " "
+	}
 
 	rows, err := db.Query("SELECT rom.id, rom.name, rom.file_path, " +
 						  "SUM(play_activity.play_time) AS play_time_total, " +
@@ -269,6 +352,7 @@ func GenerateCurrentGameStats() (map[string][]models.PlayHistoryAggregate, map[s
         				  "FROM rom " +
 						  "LEFT JOIN play_activity " +
 						  "ON rom.id = play_activity.rom_id " +
+						  whereMod +
         				  "GROUP BY rom.id " +
         				  "HAVING play_time_total > 0 " +
         				  "ORDER BY play_time_total DESC")
@@ -391,6 +475,15 @@ func extractItemConsoleName(gameItem shared.Item) string {
 		return ""
 	}
 	return pathSplit[4]
+}
+
+func extractGameName(romFilePath string) string {
+	if romFilePath == "" {
+		return romFilePath
+	}
+	pathParts := strings.Split(romFilePath, "/")
+	
+	return removeFileExtension(pathParts[len(pathParts)-1])
 }
 
 func ConvertSecondsToHumanReadable(gameTimeSeconds int) string {

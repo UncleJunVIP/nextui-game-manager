@@ -36,6 +36,11 @@ func (ts ToolsScreen) Draw() (value interface{}, exitCode int, e error) {
 	})
 
 	options := gabagool.DefaultListOptions("Tools", menuItems)
+
+	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
+	options.SelectedIndex = selectedIndex
+	options.VisibleStartIndex = visibleStartIndex
+	
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
