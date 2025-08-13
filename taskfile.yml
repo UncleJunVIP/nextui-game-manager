@@ -17,6 +17,12 @@ tasks:
       - docker buildx build --platform=linux/arm64 -t retro-console-arm64 -f Dockerfile .
     silent: true
 
+  download-romnibus-dev:
+    cmds:
+      - mkdir -p resources
+      - curl -o resources/ROMnibus.sqlite.zip -L https://github.com/UncleJunVIP/ROMnibus/releases/latest/download/ROMnibus.sqlite.zip
+      - cd resources && unzip ROMnibus.sqlite.zip && rm ROMnibus.sqlite.zip
+
   package:
     cmds:
       - docker create --name extract retro-console-arm64
@@ -25,6 +31,8 @@ tasks:
       - rm -rf "build/Game Manager.pak" || true
       - mkdir -p "build/Game Manager.pak"
       - mkdir -p "build/Game Manager.pak/resources/lib"
+      - curl -o "build/Game Manager.pak/resources/ROMnibus.sqlite.zip" -L https://github.com/UncleJunVIP/ROMnibus/releases/latest/download/ROMnibus.sqlite.zip
+      - cd "build/Game Manager.pak/resources" && unzip ROMnibus.sqlite.zip && rm ROMnibus.sqlite.zip
       - cp build/game-manager launch.sh README.md LICENSE pak.json "build/Game Manager.pak"
       - cp -R build/lib "build/Game Manager.pak/resources"
     silent: true

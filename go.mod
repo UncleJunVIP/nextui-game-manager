@@ -3,11 +3,12 @@ module nextui-game-manager
 go 1.24
 
 require (
+	github.com/UncleJunVIP/ROMnibus v0.3.0
 	github.com/UncleJunVIP/certifiable v1.0.0
 	github.com/UncleJunVIP/gabagool v0.0.66
 	github.com/UncleJunVIP/nextui-pak-shared-functions v1.11.1
 	github.com/disintegration/imaging v1.6.2
-	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/mattn/go-sqlite3 v1.14.31
 	github.com/spf13/viper v1.20.1
 	github.com/veandco/go-sdl2 v0.4.40
 	go.uber.org/atomic v1.11.0

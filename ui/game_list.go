@@ -117,7 +117,7 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 	options.EnableHelp = true
 	options.HelpTitle = "ROMs List Controls"
 	options.HelpText = []string{
-		"• X: Open Options",
+		"• X: Open Search",
 		"• Select: Toggle Multi-Select",
 		"• Start: Confirm Multi-Selection",
 	}

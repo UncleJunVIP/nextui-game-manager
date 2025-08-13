@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	romnibus "github.com/UncleJunVIP/ROMnibus/utils"
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
@@ -56,7 +57,7 @@ func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadTy
 	}
 
 	for _, game := range games {
-		matchedArt := findMatchingArt(artList, game.Filename, fuzzySearchThreshold)
+		matchedArt := findMatchingArt(artList, game, fuzzySearchThreshold)
 		if matchedArt.Filename != "" {
 			artMap[game] = matchedArt.Filename
 		}
@@ -80,7 +81,7 @@ func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType su
 		return ""
 	}
 
-	matchedArt := findMatchingArt(artList, game.Filename, fuzzySearchThreshold)
+	matchedArt := findMatchingArt(artList, game, fuzzySearchThreshold)
 	if matchedArt.Filename == "" {
 		return ""
 	}
@@ -160,7 +161,34 @@ func findRomsWithoutArtInDirectory(romDir shared.RomDirectory) ([]shared.Item, e
 	return romsWithoutArt, nil
 }
 
-func findMatchingArt(artList []shared.Item, filename string, fuzzySearchThreshold float64) shared.Item {
+func findMatchingArt(artList []shared.Item, game shared.Item, fuzzySearchThreshold float64) shared.Item {
+	var foundArt shared.Item
+
+	hash, err := romnibus.CalculateFileHash(game.Path)
+	if err == nil {
+		fbh, err := romnibus.FindByHash(hash)
+		if err == nil && fbh != nil && fbh.Name != "" {
+			foundArt = findMatchingArtOG(artList, fbh.Name, fuzzySearchThreshold)
+		}
+	}
+
+	if foundArt.Filename != "" {
+		return foundArt
+	}
+
+	fbf, err := romnibus.FindByFilename(game.Filename)
+	if err == nil && fbf != nil && fbf.Name != "" {
+		foundArt = findMatchingArtOG(artList, fbf.Name, fuzzySearchThreshold)
+	}
+
+	if foundArt.Filename != "" {
+		return foundArt
+	}
+
+	return findMatchingArtOG(artList, game.Filename, fuzzySearchThreshold)
+}
+
+func findMatchingArtOG(artList []shared.Item, filename string, fuzzySearchThreshold float64) shared.Item {
 	// toastd's trick for Libretro Thumbnail Naming
 	cleanedName := strings.ReplaceAll(filename, "&", "_")
 

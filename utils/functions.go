@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	romnibus "github.com/UncleJunVIP/ROMnibus/utils"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
@@ -16,9 +17,14 @@ const (
 	gameTrackerDBPath  = "/mnt/SDCARD/.userdata/shared/game_logs.sqlite"
 	saveFileDirectory  = "/mnt/SDCARD/Saves/"
 	RecentlyPlayedFile = "/mnt/SDCARD/.userdata/shared/.minui/recent.txt"
+	romnibusDBPath     = "/mnt/SDCARD/Tools/tg5040/Game Manager.pak/resources/ROMnibus.sqlite"
 	defaultDirPerm     = 0755
 	defaultFilePerm    = 0644
 )
+
+func init() {
+	_, _ = romnibus.InitDB(GetROMnibusDB())
+}
 
 func IsDev() bool {
 	return os.Getenv("ENVIRONMENT") == "DEV"
@@ -61,6 +67,13 @@ func GetGameTrackerDBPath() string {
 		return os.Getenv("GAME_TRACKER_DB_PATH")
 	}
 	return gameTrackerDBPath
+}
+
+func GetROMnibusDB() string {
+	if IsDev() {
+		return os.Getenv("ROMNIBUS_DB_PATH")
+	}
+	return romnibusDBPath
 }
 
 func CreateRomDirectoryFromItem(item shared.Item) shared.RomDirectory {

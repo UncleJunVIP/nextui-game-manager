@@ -5,7 +5,7 @@
 .DS_Store
 **/.DS_Store
 
-/resources/fonts/
+/resources/ROMnibus.sqlite
 /*.log
 /build/lib/libSDL2_gfx-1.0.so.0
 /build/RFDT.pak/resources/lib/libSDL2_gfx-1.0.so.0
