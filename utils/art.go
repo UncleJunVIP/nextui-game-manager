@@ -2,20 +2,21 @@ package utils
 
 import (
 	"fmt"
+	"log/slog"
+	"math"
+	"net/url"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
+
 	romnibus "github.com/UncleJunVIP/ROMnibus/utils"
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"github.com/disintegration/imaging"
-	"go.uber.org/zap"
-	"math"
-	"net/url"
-	"path/filepath"
 	"qlova.tech/sum"
-	"regexp"
-	"slices"
-	"strings"
 )
 
 func FindExistingArt(selectedFile string, romDirectory shared.RomDirectory) (string, error) {
@@ -23,7 +24,7 @@ func FindExistingArt(selectedFile string, romDirectory shared.RomDirectory) (str
 
 	mediaDir := filepath.Join(romDirectory.Path, ".media")
 	if err := EnsureDirectoryExists(mediaDir); err != nil {
-		logger.Info("No media directory found", zap.String("directory", romDirectory.Path))
+		logger.Info("No media directory found", "directory", romDirectory.Path)
 		return "", nil
 	}
 
@@ -52,7 +53,7 @@ func FindAllArt(romDirectory shared.RomDirectory, games shared.Items, downloadTy
 
 	artList, err := client.ListDirectory(section.HostSubdirectory)
 	if err != nil {
-		logger.Info("Unable to fetch art list", zap.Error(err))
+		logger.Info("Unable to fetch art list", "error", err)
 		return nil
 	}
 
@@ -77,7 +78,7 @@ func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType su
 
 	artList, err := client.ListDirectory(section.HostSubdirectory)
 	if err != nil {
-		logger.Info("Unable to fetch art list", zap.Error(err))
+		logger.Info("Unable to fetch art list", "error", err)
 		return ""
 	}
 
@@ -93,7 +94,7 @@ func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType su
 
 	src, err := imaging.Open(lastSavedArtPath)
 	if err != nil {
-		logger.Error("Unable to open last saved art", zap.Error(err))
+		logger.Error("Unable to open last saved art", "error", err)
 		return ""
 	}
 
@@ -101,7 +102,7 @@ func FindArt(romDirectory shared.RomDirectory, game shared.Item, downloadType su
 
 	err = imaging.Save(dst, lastSavedArtPath)
 	if err != nil {
-		logger.Error("Unable to save resized last saved art", zap.Error(err))
+		logger.Error("Unable to save resized last saved art", "error", err)
 		return ""
 	}
 
@@ -116,7 +117,7 @@ func FindRomsWithoutArt() (map[shared.RomDirectory][]shared.Item, error) {
 
 	err := fb.CWD(GetRomDirectory(), false)
 	if err != nil {
-		logger.Error("Failed to get rom directories", zap.Error(err))
+		logger.Error("Failed to get rom directories", "error", err)
 		return nil, fmt.Errorf("failed to get rom directories: %w", err)
 	}
 
@@ -129,7 +130,7 @@ func FindRomsWithoutArt() (map[shared.RomDirectory][]shared.Item, error) {
 
 		romsWithoutArt, err := findRomsWithoutArtInDirectory(romDir)
 		if err != nil {
-			logger.Error("Failed to process rom directory", zap.String("directory", romDir.Path), zap.Error(err))
+			logger.Error("Failed to process rom directory", "directory", romDir.Path, "error", err)
 			continue
 		}
 
@@ -357,10 +358,10 @@ func buildArtDirectory(game shared.Item) string {
 	return filepath.Join(romDirectoryPath, ".media")
 }
 
-func renameArtFile(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *zap.Logger) {
+func renameArtFile(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *slog.Logger) {
 	existingArtPath, err := FindExistingArt(oldFilename, romDirectory)
 	if err != nil {
-		logger.Error("Failed to find existing art", zap.Error(err))
+		logger.Error("Failed to find existing art", "error", err)
 		return
 	}
 
@@ -377,7 +378,7 @@ func renameArtFile(oldFilename, newFilename string, romDirectory shared.RomDirec
 	newArtPath := filepath.Join(filepath.Dir(existingArtPath), newFilename+ext)
 
 	if err := MoveFile(existingArtPath, newArtPath); err != nil {
-		logger.Error("Failed to rename art file", zap.Error(err))
+		logger.Error("Failed to rename art file", "error", err)
 	}
 }
 
@@ -386,7 +387,7 @@ func DeleteArt(filename string, romDirectory shared.RomDirectory) {
 
 	artPath, err := FindExistingArt(filename, romDirectory)
 	if err != nil {
-		logger.Error("Failed to find existing art", zap.Error(err))
+		logger.Error("Failed to find existing art", "error", err)
 		return
 	}
 

@@ -2,17 +2,18 @@ package ui
 
 import (
 	"fmt"
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+	"slices"
+	"strings"
+	"time"
+
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"github.com/veandco/go-sdl2/sdl"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
 	"qlova.tech/sum"
-	"slices"
-	"strings"
-	"time"
 )
 
 type GlobalActionsScreen struct {
@@ -150,7 +151,7 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 				return nil, nil
 			})
 
-			res, err := gabagool.DownloadManager(downloads, make(map[string]string))
+			res, err := gabagool.DownloadManager(downloads, make(map[string]string), true)
 			if err != nil {
 				utils.ShowTimedMessage("Failed to download art!", time.Second*2)
 				return nil, 0, nil

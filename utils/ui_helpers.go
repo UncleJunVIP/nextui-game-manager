@@ -1,8 +1,9 @@
 package utils
 
 import (
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"time"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 )
 
 func ShowTimedMessage(message string, delay time.Duration) {

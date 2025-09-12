@@ -1,9 +1,10 @@
 package ui
 
 import (
+	"nextui-game-manager/models"
+
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"nextui-game-manager/models"
 	"qlova.tech/sum"
 )
 

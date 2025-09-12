@@ -2,16 +2,16 @@ package ui
 
 import (
 	"fmt"
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+	"slices"
+
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"github.com/veandco/go-sdl2/sdl"
-	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
 	"qlova.tech/sum"
-	"slices"
 )
 
 type CollectionManagement struct {
@@ -35,7 +35,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 	var err error
 	c.Collection, err = utils.ReadCollection(c.Collection)
 	if err != nil {
-		logger.Error("failed to read collection", zap.Error(err))
+		logger.Error("failed to read collection", "error", err)
 		return shared.Item{}, 1, err
 	}
 

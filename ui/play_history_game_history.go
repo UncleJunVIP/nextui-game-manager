@@ -2,37 +2,38 @@ package ui
 
 import (
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"qlova.tech/sum"
 	"time"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
 type PlayHistoryGameHistoryScreen struct {
-	Console         		string
-	SearchFilter			string
-	GameAggregate			models.PlayHistoryAggregate
-	Game                 	shared.Item
-	RomDirectory         	shared.RomDirectory
-	PreviousRomDirectory 	shared.RomDirectory
-	PlayHistoryOrigin		bool
-	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
+	Console               string
+	SearchFilter          string
+	GameAggregate         models.PlayHistoryAggregate
+	Game                  shared.Item
+	RomDirectory          shared.RomDirectory
+	PreviousRomDirectory  shared.RomDirectory
+	PlayHistoryOrigin     bool
+	PlayHistoryFilterList []models.PlayHistorySearchFilter
 }
 
-func InitPlayHistoryGameHistoryScreen(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate, game shared.Item, romDirectory shared.RomDirectory, 
+func InitPlayHistoryGameHistoryScreen(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate, game shared.Item, romDirectory shared.RomDirectory,
 	previousRomDirectory shared.RomDirectory, playHistoryOrigin bool, filterList []models.PlayHistorySearchFilter) PlayHistoryGameHistoryScreen {
 	return PlayHistoryGameHistoryScreen{
-		Console:              	console,
-		SearchFilter:         	searchFilter,
-		GameAggregate: 			gameAggregate,
-		Game:      				game,
-		RomDirectory: 			romDirectory,
-		PreviousRomDirectory:	previousRomDirectory,
-		PlayHistoryOrigin: 		playHistoryOrigin,
-		PlayHistoryFilterList: 	filterList,
+		Console:               console,
+		SearchFilter:          searchFilter,
+		GameAggregate:         gameAggregate,
+		Game:                  game,
+		RomDirectory:          romDirectory,
+		PreviousRomDirectory:  previousRomDirectory,
+		PlayHistoryOrigin:     playHistoryOrigin,
+		PlayHistoryFilterList: filterList,
 	}
 }
 

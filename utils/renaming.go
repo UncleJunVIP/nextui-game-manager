@@ -2,14 +2,14 @@ package utils
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
 
 func renameSaveFile(oldFilename, newFilename string, romDirectory shared.RomDirectory) {
@@ -21,7 +21,7 @@ func renameSaveFile(oldFilename, newFilename string, romDirectory shared.RomDire
 	fb := filebrowser.NewFileBrowser(logger)
 
 	if err := fb.CWD(saveDir, true); err != nil {
-		logger.Error("Failed to access save directory", zap.String("dir", saveDir), zap.Error(err))
+		logger.Error("Failed to access save directory", "dir", saveDir, "error", err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func renameSaveFile(oldFilename, newFilename string, romDirectory shared.RomDire
 	newSavePath := filepath.Join(saveDir, newFilename+ext)
 
 	if err := MoveFile(saveFile.Path, newSavePath); err != nil {
-		logger.Error("Failed to rename save file", zap.Error(err))
+		logger.Error("Failed to rename save file", "error", err)
 	}
 }
 
@@ -45,7 +45,7 @@ func RenameCollection(collection models.Collection, name string) (models.Collect
 	newPath := filepath.Join(filepath.Dir(collection.CollectionFile), name+".txt")
 
 	if err := os.Rename(collection.CollectionFile, newPath); err != nil {
-		logger.Error("Failed to rename collection file", zap.Error(err))
+		logger.Error("Failed to rename collection file", "error", err)
 		return models.Collection{}, fmt.Errorf("failed to rename collection: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func RenameRom(game shared.Item, newFilename string, romDirectory shared.RomDire
 	oldPath := filepath.Join(romDirectory.Path, game.Filename)
 	newPath := buildNewRomPath(romDirectory.Path, newFilename, game.Filename)
 
-	logger.Debug("Renaming ROM", zap.String("from", oldPath), zap.String("to", newPath))
+	logger.Debug("Renaming ROM", "from", oldPath, "to", newPath)
 
 	if err := MoveFile(oldPath, newPath); err != nil {
 		return "", fmt.Errorf("failed to rename ROM file: %w", err)
@@ -105,9 +105,9 @@ func renameAssociatedFile(oldFilename string, newFilename string, newPath string
 
 	if err := MoveFile(oldAssociatedPath, newAssociatedPath); err != nil {
 		logger.Error("Failed to rename associated file",
-			zap.String("from", oldAssociatedPath),
-			zap.String("to", newAssociatedPath),
-			zap.String("extension", extension),
-			zap.Error(err))
+			"from", oldAssociatedPath,
+			"to", newAssociatedPath,
+			"extension", extension,
+			"error", err)
 	}
 }

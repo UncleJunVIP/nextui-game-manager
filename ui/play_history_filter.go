@@ -2,54 +2,55 @@ package ui
 
 import (
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"qlova.tech/sum"
 	"strings"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
 type PlayHistoryFilterScreen struct {
-	Console         		string
-	SearchFilter			string
-	GameAggregate			models.PlayHistoryAggregate
-	Game                 	shared.Item
-	RomDirectory         	shared.RomDirectory
-	PreviousRomDirectory 	shared.RomDirectory
-	PlayHistoryOrigin		bool
-	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
-	MenuDepth				int
+	Console               string
+	SearchFilter          string
+	GameAggregate         models.PlayHistoryAggregate
+	Game                  shared.Item
+	RomDirectory          shared.RomDirectory
+	PreviousRomDirectory  shared.RomDirectory
+	PlayHistoryOrigin     bool
+	PlayHistoryFilterList []models.PlayHistorySearchFilter
+	MenuDepth             int
 }
 
-func InitPlayHistoryFilterScreen(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate, game shared.Item, romDirectory shared.RomDirectory, 
+func InitPlayHistoryFilterScreen(console string, searchFilter string, gameAggregate models.PlayHistoryAggregate, game shared.Item, romDirectory shared.RomDirectory,
 	previousRomDirectory shared.RomDirectory, playHistoryOrigin bool, filterList []models.PlayHistorySearchFilter, menuDepth int) PlayHistoryFilterScreen {
 	return PlayHistoryFilterScreen{
-		Console:              	console,
-		SearchFilter:         	searchFilter,
-		GameAggregate: 			gameAggregate,
-		Game:      				game,
-		RomDirectory: 			romDirectory,
-		PreviousRomDirectory:	previousRomDirectory,
-		PlayHistoryOrigin: 		playHistoryOrigin,
-		PlayHistoryFilterList:	filterList,
-		MenuDepth:				menuDepth,
+		Console:               console,
+		SearchFilter:          searchFilter,
+		GameAggregate:         gameAggregate,
+		Game:                  game,
+		RomDirectory:          romDirectory,
+		PreviousRomDirectory:  previousRomDirectory,
+		PlayHistoryOrigin:     playHistoryOrigin,
+		PlayHistoryFilterList: filterList,
+		MenuDepth:             menuDepth,
 	}
 }
 
 func InitPlayHistoryFilterScreenFromGameList(console string, filterList []models.PlayHistorySearchFilter) PlayHistoryFilterScreen {
 	return PlayHistoryFilterScreen{
-		Console:              	console,
-		PlayHistoryFilterList:	filterList,
-		MenuDepth:				1,
+		Console:               console,
+		PlayHistoryFilterList: filterList,
+		MenuDepth:             1,
 	}
 }
 
 func InitPlayHistoryFilterScreenFromHistoryList(filterList []models.PlayHistorySearchFilter) PlayHistoryFilterScreen {
 	return PlayHistoryFilterScreen{
-		PlayHistoryFilterList:	filterList,
-		MenuDepth:				1,
+		PlayHistoryFilterList: filterList,
+		MenuDepth:             1,
 	}
 }
 
@@ -83,7 +84,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		if startIndex == -1 || endIndex == -1 || startIndex >= endIndex {
 			title = title + " (" + phfs.Console + ")"
 		} else {
-			title = title + " " + phfs.Console[startIndex : endIndex+1]
+			title = title + " " + phfs.Console[startIndex:endIndex+1]
 		}
 	}
 
@@ -93,10 +94,10 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	}
 
 	var menuItems []gaba.MenuItem
-	
+
 	for _, filter := range filterList {
 		filterItem := gaba.MenuItem{
-			Text:     fmt.Sprintf("%s : %s",filter.DisplayName, utils.ConvertSecondsToHumanReadable(filter.PlayTime)),
+			Text:     fmt.Sprintf("%s : %s", filter.DisplayName, utils.ConvertSecondsToHumanReadable(filter.PlayTime)),
 			Selected: false,
 			Focused:  false,
 			Metadata: filter,
@@ -119,7 +120,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	}
 
 	if len(phfs.PlayHistoryFilterList) > 0 {
-		options.FooterHelpItems = append([]gaba.FooterHelpItem{{ButtonName: "B", HelpText: "Back"},}, options.FooterHelpItems...)
+		options.FooterHelpItems = append([]gaba.FooterHelpItem{{ButtonName: "B", HelpText: "Back"}}, options.FooterHelpItems...)
 	}
 
 	selection, err := gaba.List(options)

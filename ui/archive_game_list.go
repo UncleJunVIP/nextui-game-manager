@@ -2,18 +2,18 @@ package ui
 
 import (
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 	"path/filepath"
-	"qlova.tech/sum"
 	"strings"
 	"time"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
 type ArchiveGamesListScreen struct {
@@ -49,8 +49,8 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 	err := fb.CWD(agl.RomDirectory.Path, false)
 	if err != nil {
 		logger.Info("Unable to fetch ROM directory! Continuing without them",
-			zap.String("rom_directory", agl.RomDirectory.Path),
-			zap.Error(err))
+			"error", err,
+			"rom_directory", agl.RomDirectory.Path)
 		return shared.Item{}, 1, err
 	}
 

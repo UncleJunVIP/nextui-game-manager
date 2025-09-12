@@ -2,18 +2,18 @@ package ui
 
 import (
 	"fmt"
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+	"slices"
+	"strings"
+	"time"
+
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
 	"qlova.tech/sum"
-	"slices"
-	"strings"
-	"time"
 )
 
 type AddToCollectionScreen struct {
@@ -67,7 +67,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 		var err error
 		collection, err = utils.ReadCollection(collection)
 		if err != nil {
-			logger.Error("Error reading collection", zap.Error(err))
+			logger.Error("Error reading collection", "error", err)
 			continue
 		}
 

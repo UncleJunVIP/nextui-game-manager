@@ -1,13 +1,13 @@
 package ui
 
 import (
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
 	"qlova.tech/sum"
 )
 
@@ -35,8 +35,8 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 	err := fb.CWD(am.Archive.Path, false)
 	if err != nil {
 		logger.Info("Unable to fetch console directory! Continuing without them",
-			zap.String("rom_directory", am.Archive.Path),
-			zap.Error(err))
+			"error", err,
+			"rom_directory", am.Archive.Path, err)
 		return shared.Item{}, 1, err
 	}
 

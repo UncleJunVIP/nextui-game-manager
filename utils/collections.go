@@ -3,16 +3,16 @@ package utils
 import (
 	"bufio"
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
 
 func updateCollectionGamePath(collection models.Collection, oldDisplayName string, game shared.Item, romDirectory shared.RomDirectory) {
@@ -44,7 +44,7 @@ func AddCollectionGames(collectionMap map[string][]models.Collection, collection
 
 	for _, game := range games {
 		if GameExistsInCollection(collectionMap, collection, game) {
-			logger.Debug("Game already exists in collection", zap.String("path", game.Path))
+			logger.Debug("Game already exists in collection", "path", game.Path)
 			continue
 		}
 		collection.Games = append(collection.Games, game)
@@ -68,7 +68,7 @@ func ReadCollection(collection models.Collection) (models.Collection, error) {
 
 	file, err := os.Open(collection.CollectionFile)
 	if err != nil {
-		logger.Error("Failed to open collection file", zap.String("file", collection.CollectionFile), zap.Error(err))
+		logger.Error("Failed to open collection file", "file", collection.CollectionFile, "error", err)
 		return collection, fmt.Errorf("failed to open collection file: %w", err)
 	}
 	defer file.Close()
@@ -91,7 +91,7 @@ func ReadCollection(collection models.Collection) (models.Collection, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		logger.Error("Failed to read collection file", zap.Error(err))
+		logger.Error("Failed to read collection file", "error", err)
 		return collection, fmt.Errorf("failed to read collection: %w", err)
 	}
 

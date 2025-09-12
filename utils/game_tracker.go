@@ -3,16 +3,17 @@ package utils
 import (
 	"database/sql"
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
+	"log/slog"
+	"maps"
 	"nextui-game-manager/models"
 	"path/filepath"
-	"maps"
 	"slices"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
 
 func HasGameTrackerData(romFilename string, romDirectory shared.RomDirectory) bool {
@@ -44,18 +45,18 @@ func MigrateGameTrackerData(filename, oldPath, newPath string) bool {
 	defer closeDB(db)
 
 	logger.Debug("Migrating game tracker data",
-		zap.String("filename", filename),
-		zap.String("oldPath", oldPath),
-		zap.String("newPath", newPath))
+		"filename", filename,
+		"oldPath", oldPath,
+		"newPath", newPath)
 
 	return executeGameTrackerMigration(db, filename, oldPath, newPath, logger)
 }
 
-func updateGameTrackerForRename(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *zap.Logger) {
+func updateGameTrackerForRename(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *slog.Logger) {
 	oldPath := buildGameTrackerPath(romDirectory.Path, oldFilename)
 	newPath := buildGameTrackerPath(romDirectory.Path, newFilename+filepath.Ext(oldFilename))
 
-	logger.Debug("Updating game tracker for rename", zap.String("old", oldPath), zap.String("new", newPath))
+	logger.Debug("Updating game tracker for rename", "old", oldPath, "new", newPath)
 	MigrateGameTrackerData(newFilename, oldPath, newPath)
 }
 
@@ -70,27 +71,27 @@ func updateRomData(tx *sql.Tx, filename, newPath, romID string) error {
 	return err
 }
 
-func executeGameTrackerMigration(db *sql.DB, filename, oldPath, newPath string, logger *zap.Logger) bool {
+func executeGameTrackerMigration(db *sql.DB, filename, oldPath, newPath string, logger *slog.Logger) bool {
 	tx, err := db.Begin()
 	if err != nil {
-		logger.Error("Failed to begin transaction", zap.Error(err))
+		logger.Error("Failed to begin transaction", "error", err)
 		return false
 	}
 	defer tx.Rollback()
 
 	romID, err := findRomID(tx, oldPath)
 	if err != nil || romID == "" {
-		logger.Error("Failed to find ROM ID", zap.String("path", oldPath), zap.Error(err))
+		logger.Error("Failed to find ROM ID", "path", oldPath, "error", err)
 		return false
 	}
 
 	if err := updateRomData(tx, filename, newPath, romID); err != nil {
-		logger.Error("Failed to update ROM data", zap.Error(err))
+		logger.Error("Failed to update ROM data", "error", err)
 		return false
 	}
 
 	if err := tx.Commit(); err != nil {
-		logger.Error("Failed to commit transaction", zap.Error(err))
+		logger.Error("Failed to commit transaction", "error", err)
 		return false
 	}
 
@@ -111,24 +112,24 @@ func ClearGameTracker(romName string, romDirectory shared.RomDirectory) bool {
 
 	tx, err := db.Begin()
 	if err != nil {
-		logger.Error("Failed to begin transaction", zap.Error(err))
+		logger.Error("Failed to begin transaction", "error", err)
 		return false
 	}
 	defer tx.Rollback()
 
 	romID, err := findRomID(tx, romPath)
 	if err != nil || romID == "" {
-		logger.Warn("No ROM found to clear", zap.String("path", romPath))
+		logger.Warn("No ROM found to clear", "path", romPath)
 		return false
 	}
 
 	if err := deleteGameTrackerData(tx, romID); err != nil {
-		logger.Error("Failed to delete game tracker data", zap.Error(err))
+		logger.Error("Failed to delete game tracker data", "error", err)
 		return false
 	}
 
 	if err := tx.Commit(); err != nil {
-		logger.Error("Failed to commit transaction", zap.Error(err))
+		logger.Error("Failed to commit transaction", "error", err)
 		return false
 	}
 
@@ -149,7 +150,7 @@ func openGameTrackerDB() (*sql.DB, error) {
 
 	db, err := sql.Open("sqlite3", GetGameTrackerDBPath())
 	if err != nil {
-		logger.Error("Failed to open game tracker database", zap.Error(err))
+		logger.Error("Failed to open game tracker database", "error", err)
 		return nil, err
 	}
 	return db, nil
@@ -158,7 +159,7 @@ func openGameTrackerDB() (*sql.DB, error) {
 func closeDB(db *sql.DB) {
 	if err := db.Close(); err != nil {
 		logger := common.GetLoggerInstance()
-		logger.Error("Failed to close database", zap.Error(err))
+		logger.Error("Failed to close database", "error", err)
 	}
 }
 
@@ -193,7 +194,7 @@ func CollectGameAggregateFromGame(gameItem shared.Item, gamePlayMap map[string][
 	return CollectGameAggregateFromGamePath(gameItem.Path, console, gamePlayMap), console
 }
 
-func CollectGameAggregateFromGamePath(gamePath string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) (models.PlayHistoryAggregate) {
+func CollectGameAggregateFromGamePath(gamePath string, console string, gamePlayMap map[string][]models.PlayHistoryAggregate) models.PlayHistoryAggregate {
 	PlayHistoryList := gamePlayMap[console]
 
 	for _, gameAggregate := range PlayHistoryList {
@@ -203,8 +204,8 @@ func CollectGameAggregateFromGamePath(gamePath string, console string, gamePlayM
 	}
 
 	return models.PlayHistoryAggregate{
-		Name: extractGameName(gamePath),
-		PlayTimeTotal: 0,
+		Name:           extractGameName(gamePath),
+		PlayTimeTotal:  0,
 		PlayCountTotal: 0,
 	}
 }
@@ -218,8 +219,8 @@ func convertIntListToStringList(intList []int) []string {
 }
 
 const (
-	NoFilter		= 0   // No filter
-	YearMonth       = 1   // YearMonth Filter
+	NoFilter  = 0 // No filter
+	YearMonth = 1 // YearMonth Filter
 )
 
 func GenFiltersList(romIds []int, searchFilterString string, existingFilterType int) []models.PlayHistorySearchFilter {
@@ -257,26 +258,26 @@ func GenFiltersList(romIds []int, searchFilterString string, existingFilterType 
 		newFilterFormat = "STRFTIME('%Y.%m', DATETIME(play_activity.created_at, 'unixepoch', 'localtime'))"
 	}
 
-	rows, err := db.Query("SELECT " + newFilterFormat + " as new_filter, " + 
-						  "sum(play_activity.play_time) as play_time " +
-        				  "FROM play_activity " +
-						  whereStr + romWhereStr + andStr + searchFilterString +
-        				  "GROUP BY " + newFilterFormat)
+	rows, err := db.Query("SELECT " + newFilterFormat + " as new_filter, " +
+		"sum(play_activity.play_time) as play_time " +
+		"FROM play_activity " +
+		whereStr + romWhereStr + andStr + searchFilterString +
+		"GROUP BY " + newFilterFormat)
 	defer rows.Close()
 
 	var filterList []models.PlayHistorySearchFilter
 	for rows.Next() {
-		var newFilter 	string
-		var playTime 	int
+		var newFilter string
+		var playTime int
 		if err := rows.Scan(&newFilter, &playTime); err != nil {
-			logger.Error("Failed to load game tracker data", zap.Error(err))
+			logger.Error("Failed to load game tracker data", "error", err)
 		}
 
 		singleFilter := models.PlayHistorySearchFilter{
-			DisplayName:	newFilter,
-			SqlFilter: 		newFilterFormat + " = '" + newFilter + "'",
-			FilterType:		existingFilterType + 1,
-			PlayTime:		playTime,
+			DisplayName: newFilter,
+			SqlFilter:   newFilterFormat + " = '" + newFilter + "'",
+			FilterType:  existingFilterType + 1,
+			PlayTime:    playTime,
 		}
 
 		filterList = append(filterList, singleFilter)
@@ -289,7 +290,7 @@ func GenerateSingleGameGranularRecords(romIds []int, searchFilter string) []mode
 	if len(romIds) == 0 {
 		return nil
 	}
-	
+
 	logger := common.GetLoggerInstance()
 	db, err := openGameTrackerDB()
 	if err != nil {
@@ -305,25 +306,25 @@ func GenerateSingleGameGranularRecords(romIds []int, searchFilter string) []mode
 	}
 
 	rows, err := db.Query("SELECT play_time, created_at, updated_at " +
-        				  "FROM play_activity " +
-						  "WHERE rom_id in ('"+romIdString+"') " +
-						  whereMod +
-        				  "ORDER BY created_at")
+		"FROM play_activity " +
+		"WHERE rom_id in ('" + romIdString + "') " +
+		whereMod +
+		"ORDER BY created_at")
 	defer rows.Close()
 
 	var granularList []models.PlayHistoryGranular
 	for rows.Next() {
-		var playTime 	int
-		var createTime 	int
-		var updateTime 	int
+		var playTime int
+		var createTime int
+		var updateTime int
 		if err := rows.Scan(&playTime, &createTime, &updateTime); err != nil {
-			logger.Error("Failed to load game tracker data", zap.Error(err))
+			logger.Error("Failed to load game tracker data", "error", err)
 		}
 
 		playTrack := models.PlayHistoryGranular{
-			PlayTime:	playTime,
-			StartTime: 	createTime,
-			UpdateTime:	updateTime,
+			PlayTime:   playTime,
+			StartTime:  createTime,
+			UpdateTime: updateTime,
 		}
 		granularList = append(granularList, playTrack)
 	}
@@ -345,17 +346,17 @@ func GenerateCurrentGameStats(searchFilter string) (map[string][]models.PlayHist
 	}
 
 	rows, err := db.Query("SELECT rom.id, rom.name, rom.file_path, " +
-						  "SUM(play_activity.play_time) AS play_time_total, " +
-						  "COUNT(play_activity.ROWID) AS play_count_total, " +
-						  "MIN(play_activity.created_at) AS first_played_at, " +
-						  "MAX(play_activity.created_at) AS last_played_at " +
-        				  "FROM rom " +
-						  "LEFT JOIN play_activity " +
-						  "ON rom.id = play_activity.rom_id " +
-						  whereMod +
-        				  "GROUP BY rom.id " +
-        				  "HAVING play_time_total > 0 " +
-        				  "ORDER BY play_time_total DESC")
+		"SUM(play_activity.play_time) AS play_time_total, " +
+		"COUNT(play_activity.ROWID) AS play_count_total, " +
+		"MIN(play_activity.created_at) AS first_played_at, " +
+		"MAX(play_activity.created_at) AS last_played_at " +
+		"FROM rom " +
+		"LEFT JOIN play_activity " +
+		"ON rom.id = play_activity.rom_id " +
+		whereMod +
+		"GROUP BY rom.id " +
+		"HAVING play_time_total > 0 " +
+		"ORDER BY play_time_total DESC")
 	defer rows.Close()
 
 	gamePlayMap := make(map[string][]models.PlayHistoryAggregate)
@@ -363,26 +364,26 @@ func GenerateCurrentGameStats(searchFilter string) (map[string][]models.PlayHist
 	totalPlay := 0
 	multiMap := make(map[string]bool)
 	for rows.Next() {
-		var id 				int
-		var name 			string
-		var filePath 		string
-		var playTimeTotal 	int
-		var playCountTotal 	int
+		var id int
+		var name string
+		var filePath string
+		var playTimeTotal int
+		var playCountTotal int
 		var firstPlayedTime int
-		var lastPlayedTime 	int
+		var lastPlayedTime int
 		if err := rows.Scan(&id, &name, &filePath, &playTimeTotal, &playCountTotal, &firstPlayedTime, &lastPlayedTime); err != nil {
-			logger.Error("Failed to load game tracker data", zap.Error(err))
+			logger.Error("Failed to load game tracker data", "error", err)
 		}
 
 		romName, romPath, multi := extractMultiDiscName(name, filePath)
 		playTrack := models.PlayHistoryAggregate{
-			Id:					[]int{id},
-			Name: 				romName,
-			Path:				romPath,
-			PlayTimeTotal:    	playTimeTotal,
-			PlayCountTotal:    	playCountTotal,
-			FirstPlayedTime: 	time.Unix(int64(firstPlayedTime), 0),
-			LastPlayedTime:    	time.Unix(int64(lastPlayedTime), 0),
+			Id:              []int{id},
+			Name:            romName,
+			Path:            romPath,
+			PlayTimeTotal:   playTimeTotal,
+			PlayCountTotal:  playCountTotal,
+			FirstPlayedTime: time.Unix(int64(firstPlayedTime), 0),
+			LastPlayedTime:  time.Unix(int64(lastPlayedTime), 0),
 		}
 		console := extractPlayConsoleName(filePath)
 
@@ -408,7 +409,7 @@ func sortPlayMap(playMap map[string][]models.PlayHistoryAggregate, multiMap map[
 	for _, key := range keys {
 		aggregateList := playMap[key]
 		slices.SortFunc(aggregateList, func(a, b models.PlayHistoryAggregate) int {
-			return  b.PlayTimeTotal - a.PlayTimeTotal
+			return b.PlayTimeTotal - a.PlayTimeTotal
 		})
 		playMap[key] = aggregateList
 	}
@@ -419,12 +420,12 @@ func appendMultiDiscAggregate(existingList []models.PlayHistoryAggregate, newAgg
 	for index, existingAggregate := range existingList {
 		if existingAggregate.Name == newAggregate.Name {
 			existingList[index] = models.PlayHistoryAggregate{
-				Id:					appendUniqueAggregateId(existingAggregate.Id, newAggregate.Id[0]),
-				Name: 				existingAggregate.Name,
-				PlayTimeTotal:    	existingAggregate.PlayTimeTotal+newAggregate.PlayTimeTotal,
-				PlayCountTotal:    	existingAggregate.PlayCountTotal+newAggregate.PlayCountTotal,
-				FirstPlayedTime: 	minTime(existingAggregate.FirstPlayedTime, newAggregate.FirstPlayedTime),
-				LastPlayedTime:    	maxTime(existingAggregate.FirstPlayedTime, newAggregate.FirstPlayedTime),
+				Id:              appendUniqueAggregateId(existingAggregate.Id, newAggregate.Id[0]),
+				Name:            existingAggregate.Name,
+				PlayTimeTotal:   existingAggregate.PlayTimeTotal + newAggregate.PlayTimeTotal,
+				PlayCountTotal:  existingAggregate.PlayCountTotal + newAggregate.PlayCountTotal,
+				FirstPlayedTime: minTime(existingAggregate.FirstPlayedTime, newAggregate.FirstPlayedTime),
+				LastPlayedTime:  maxTime(existingAggregate.FirstPlayedTime, newAggregate.FirstPlayedTime),
 			}
 			return existingList
 		}
@@ -456,7 +457,7 @@ func maxTime(a time.Time, b time.Time) time.Time {
 }
 
 func extractMultiDiscName(romName string, filePath string) (string, string, bool) {
-	if (strings.Contains(romName, "(Disc") || strings.Contains(romName, "(Disk")) {
+	if strings.Contains(romName, "(Disc") || strings.Contains(romName, "(Disk") {
 		pathList := strings.Split(filePath, "/")
 		if len(pathList) >= 2 {
 			return pathList[len(pathList)-2], filepath.Join(GetRomDirectory(), filePath, ".."), true
@@ -482,21 +483,21 @@ func extractGameName(romFilePath string) string {
 		return romFilePath
 	}
 	pathParts := strings.Split(romFilePath, "/")
-	
+
 	return removeFileExtension(pathParts[len(pathParts)-1])
 }
 
 func ConvertSecondsToHumanReadable(gameTimeSeconds int) string {
-	hours := gameTimeSeconds/3600
-	minutes := (gameTimeSeconds/60)%60
-	seconds := gameTimeSeconds%60
+	hours := gameTimeSeconds / 3600
+	minutes := (gameTimeSeconds / 60) % 60
+	seconds := gameTimeSeconds % 60
 	return fmt.Sprintf("%d Hours, %d Minutes, %d Seconds", hours, minutes, seconds)
 }
 
 func ConvertSecondsToHumanReadableAbbreviated(gameTimeSeconds int) string {
-	hours := gameTimeSeconds/3600
-	minutes := (gameTimeSeconds/60)%60
-	seconds := gameTimeSeconds%60
+	hours := gameTimeSeconds / 3600
+	minutes := (gameTimeSeconds / 60) % 60
+	seconds := gameTimeSeconds % 60
 	return fmt.Sprintf("%dH %dM %dS", hours, minutes, seconds)
 }
 

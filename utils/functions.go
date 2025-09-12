@@ -2,15 +2,16 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"slices"
+	"strings"
+
 	romnibus "github.com/UncleJunVIP/ROMnibus/utils"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	_ "github.com/mattn/go-sqlite3"
-	"os"
-	"path/filepath"
-	"slices"
-	"strings"
 )
 
 const (

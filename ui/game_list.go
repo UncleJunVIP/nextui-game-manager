@@ -1,17 +1,17 @@
 package ui
 
 import (
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 	"path/filepath"
-	"qlova.tech/sum"
 	"strings"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
 type GameList struct {
@@ -45,8 +45,8 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 	err := fb.CWD(gl.RomDirectory.Path, false)
 	if err != nil {
 		logger.Info("Unable to fetch ROM directory! Continuing without them",
-			zap.String("rom_directory", gl.RomDirectory.Path),
-			zap.Error(err))
+			"error", err,
+			"rom_directory", gl.RomDirectory.Path)
 		return shared.Item{}, 1, err
 	}
 

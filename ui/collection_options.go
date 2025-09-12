@@ -2,12 +2,12 @@ package ui
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"qlova.tech/sum"
 )
 
@@ -73,7 +73,7 @@ func (c CollectionOptionsScreen) Draw() (screenReturn interface{}, exitCode int,
 			if newName.IsSome() {
 				updatedCol, err := utils.RenameCollection(c.Collection, newName.Unwrap())
 				if err != nil {
-					logger.Error("failed to rename collection", zap.Error(err))
+					logger.Error("failed to rename collection", "error", err)
 					return nil, -1, err
 				}
 

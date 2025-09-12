@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/UncleJunVIP/certifiable"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"log"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/ui"
 	"nextui-game-manager/utils"
 	"os"
-	"qlova.tech/sum"
 	"time"
+
+	_ "github.com/UncleJunVIP/certifiable"
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
 const (
@@ -45,14 +45,14 @@ func init() {
 
 	config, err := loadConfig()
 	if err != nil {
-		log.Fatal("Unable to initialize configuration", zap.Error(err))
+		log.Fatal("Unable to initialize configuration", "error", err)
 	}
 
 	common.SetLogLevel(config.LogLevel)
 	state.SetConfig(config)
 
 	logger := common.GetLoggerInstance()
-	logger.Debug("Configuration loaded", zap.Object("config", config))
+	logger.Debug("Configuration loaded", "config", config)
 
 	collectionDir := utils.GetCollectionDirectory()
 	if _, err := os.Stat(collectionDir); os.IsNotExist(err) {
@@ -60,7 +60,7 @@ func init() {
 			gaba.ConfirmationMessage("Unable to create Collections directory!", []gaba.FooterHelpItem{
 				{ButtonName: "B", HelpText: "Quit"},
 			}, gaba.MessageOptions{})
-			log.Fatal("Unable to create collection directory", zap.Error(mkdirErr))
+			log.Fatal("Unable to create collection directory", "error", mkdirErr)
 		}
 	}
 }
@@ -170,24 +170,24 @@ func handlePlayHistoryFilterTransition(currentScreen models.Screen, result inter
 	case ExitCodeSuccess:
 		newFilter := result.(models.PlayHistorySearchFilter)
 		state.AddNewMenuPosition()
-		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
-			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate,
+			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin,
 			append(phfs.PlayHistoryFilterList, newFilter), phfs.MenuDepth+1)
 	case ExitCodeCancel:
 		if len(phfs.PlayHistoryFilterList) > 0 {
 			if phfs.MenuDepth > 1 {
 				state.RemoveMenuPositions(1)
-				return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
-					phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+				return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate,
+					phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin,
 					phfs.PlayHistoryFilterList[:len(phfs.PlayHistoryFilterList)-1], phfs.MenuDepth-1)
 			}
 			state.UpdateCurrentMenuPosition(0, 0)
-			return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
-				phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+			return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate,
+				phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin,
 				phfs.PlayHistoryFilterList[:len(phfs.PlayHistoryFilterList)-1], phfs.MenuDepth)
 		}
-		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
-			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, 
+		return ui.InitPlayHistoryFilterScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate,
+			phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin,
 			phfs.PlayHistoryFilterList, phfs.MenuDepth)
 	}
 	state.RemoveMenuPositions(phfs.MenuDepth)
@@ -198,7 +198,7 @@ func handlePlayHistoryFilterTransition(currentScreen models.Screen, result inter
 	if phfs.GameAggregate.Name == "" {
 		return ui.InitPlayHistoryGamesListScreen(phfs.Console, phfs.PlayHistoryFilterList)
 	}
-	return ui.InitPlayHistoryGameHistoryScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate, 
+	return ui.InitPlayHistoryGameHistoryScreen(phfs.Console, phfs.SearchFilter, phfs.GameAggregate,
 		phfs.Game, phfs.RomDirectory, phfs.PreviousRomDirectory, phfs.PlayHistoryOrigin, phfs.PlayHistoryFilterList)
 }
 
@@ -245,14 +245,14 @@ func handlePlayHistoryGameHistoryTransition(currentScreen models.Screen, result 
 
 	switch code {
 	case ExitCodeSuccess:
-		return ui.InitPlayHistoryGameHistoryScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+		return ui.InitPlayHistoryGameHistoryScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate,
 			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList)
 	case ExitCodeAction:
 		state.AddNewMenuPosition()
-		return ui.InitPlayHistoryFilterScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+		return ui.InitPlayHistoryFilterScreen(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate,
 			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList, 1)
 	default:
-		return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate, 
+		return ui.InitPlayHistoryGameDetailsScreenFromSelf(ptghs.Console, ptghs.SearchFilter, ptghs.GameAggregate,
 			ptghs.Game, ptghs.RomDirectory, ptghs.PreviousRomDirectory, ptghs.PlayHistoryOrigin, ptghs.PlayHistoryFilterList)
 	}
 }
@@ -261,8 +261,8 @@ func handlePlayHistoryGameDetailsTransition(currentScreen models.Screen, result 
 	ptgds := currentScreen.(ui.PlayHistoryGameDetailsScreen)
 	switch code {
 	case ExitCodeSuccess:
-		return ui.InitPlayHistoryGameHistoryScreen(ptgds.Console, ptgds.SearchFilter, ptgds.GameAggregate, 
-		ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin, ptgds.PlayHistoryFilterList)
+		return ui.InitPlayHistoryGameHistoryScreen(ptgds.Console, ptgds.SearchFilter, ptgds.GameAggregate,
+			ptgds.Game, ptgds.RomDirectory, ptgds.PreviousRomDirectory, ptgds.PlayHistoryOrigin, ptgds.PlayHistoryFilterList)
 	default:
 		state.RemoveMenuPositions(1)
 		if ptgds.PlayHistoryOrigin {
@@ -615,7 +615,7 @@ func handleDeleteArtAction(as ui.ActionsScreen) models.Screen {
 
 	existingArtPath, err := utils.FindExistingArt(as.Game.Filename, as.RomDirectory)
 	if err != nil {
-		logger.Error("Failed to find existing art", zap.Error(err))
+		logger.Error("Failed to find existing art", "error", err)
 		utils.ShowTimedMessage("Unable to delete art!", longMessageDelay)
 		return ui.InitActionsScreen(as.Game, as.RomDirectory, as.PreviousRomDirectory, as.SearchFilter)
 	}

@@ -2,13 +2,13 @@ package ui
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
 
@@ -219,7 +219,7 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 
 		err := utils.SaveConfig(appState.Config)
 		if err != nil {
-			logger.Error("Error saving config", zap.Error(err))
+			logger.Error("Error saving config", "error", err)
 			return nil, 0, err
 		}
 

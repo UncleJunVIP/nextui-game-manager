@@ -2,11 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"os"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/spf13/viper"
 )
 
 func SaveConfig(config *models.Config) error {
@@ -34,13 +34,12 @@ func SaveConfig(config *models.Config) error {
 	viper.Set("play_history_show_collections", config.PlayHistoryShowCollections)
 	viper.Set("play_history_show_archives", config.PlayHistoryShowArchives)
 
-
 	return viper.WriteConfigAs(configFile)
 }
 
 func CreateEmptyConfigFile(filename string) error {
 	logger := common.GetLoggerInstance()
-	logger.Info("Creating new config file", zap.String("file", filename))
+	logger.Info("Creating new config file", "file", filename)
 
 	file, err := os.Create(filename)
 	if err != nil {

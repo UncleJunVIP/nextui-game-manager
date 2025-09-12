@@ -2,12 +2,13 @@ package utils
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
 
 func GetArchiveFileListBasic() ([]string, error) {
@@ -50,7 +51,7 @@ func ArchiveRom(selectedGame shared.Item, romDirectory shared.RomDirectory, arch
 	sourcePath := filepath.Join(romDirectory.Path, selectedGame.Filename)
 	destinationPath := buildArchivePath(selectedGame.Filename, romDirectory, archiveName)
 
-	logger.Debug("Archiving ROM", zap.String("from", sourcePath), zap.String("to", destinationPath))
+	logger.Debug("Archiving ROM", "from", sourcePath, "to", destinationPath)
 
 	if err := MoveFile(sourcePath, destinationPath); err != nil {
 		return fmt.Errorf("failed to archive ROM: %w", err)
@@ -66,7 +67,7 @@ func RestoreRom(selectedGame shared.Item, romDirectory shared.RomDirectory, arch
 	sourcePath := filepath.Join(romDirectory.Path, selectedGame.Filename)
 	destinationPath := buildRestorePath(selectedGame.Filename, romDirectory, archive)
 
-	logger.Debug("Restoring ROM", zap.String("from", sourcePath), zap.String("to", destinationPath))
+	logger.Debug("Restoring ROM", "from", sourcePath, "to", destinationPath)
 
 	if err := MoveFile(sourcePath, destinationPath); err != nil {
 		return fmt.Errorf("failed to restore ROM: %w", err)
@@ -85,7 +86,7 @@ func DeleteArchive(archive shared.RomDirectory) (string, error) {
 	res, err := deleteArchiveRecursive(archive.Path, 0)
 
 	if err != nil {
-		logger.Error("Failed to traverse archive", zap.Error(err))
+		logger.Error("Failed to traverse archive", "error", err)
 		return res, err
 	}
 
@@ -111,7 +112,7 @@ func deleteArchiveRecursive(currentDirectory string, currentDepth int) (string, 
 	entries, err := GetFileList(currentDirectory)
 
 	if err != nil {
-		logger.Error("Failed to traverse archive", zap.Error(err))
+		logger.Error("Failed to traverse archive", "error", err)
 		return "", err
 	}
 
@@ -152,7 +153,7 @@ func buildRestorePath(filename string, romDirectory shared.RomDirectory, archive
 	return filepath.Join(GetRomDirectory(), subdirectory, filename)
 }
 
-func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveName string, logger *zap.Logger) {
+func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveName string, logger *slog.Logger) {
 	artPath, err := FindExistingArt(filename, romDirectory)
 	if err != nil || artPath == "" {
 		return
@@ -163,11 +164,11 @@ func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveNa
 	destinationPath := filepath.Join(archiveRoot, subdirectory, ".media", filepath.Base(artPath))
 
 	if err := MoveFile(artPath, destinationPath); err != nil {
-		logger.Error("Failed to archive art file", zap.Error(err))
+		logger.Error("Failed to archive art file", "error", err)
 	}
 }
 
-func restoreArtFile(filename string, romDirectory shared.RomDirectory, archive shared.RomDirectory, logger *zap.Logger) {
+func restoreArtFile(filename string, romDirectory shared.RomDirectory, archive shared.RomDirectory, logger *slog.Logger) {
 	artPath, err := FindExistingArt(filename, romDirectory)
 	if err != nil || artPath == "" {
 		return
@@ -177,6 +178,6 @@ func restoreArtFile(filename string, romDirectory shared.RomDirectory, archive s
 	destinationPath := filepath.Join(GetRomDirectory(), subdirectory, ".media", filepath.Base(artPath))
 
 	if err := MoveFile(artPath, destinationPath); err != nil {
-		logger.Error("Failed to restore art file", zap.Error(err))
+		logger.Error("Failed to restore art file", "error", err)
 	}
 }

@@ -3,17 +3,18 @@ package ui
 import (
 	"cmp"
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"maps"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"qlova.tech/sum"
-	"maps"
 	"slices"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"qlova.tech/sum"
 )
 
 type PlayHistoryListScreen struct {
-	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
+	PlayHistoryFilterList []models.PlayHistorySearchFilter
 }
 
 func InitPlayHistoryListScreen(filterList []models.PlayHistorySearchFilter) PlayHistoryListScreen {
@@ -29,7 +30,7 @@ func (ptls PlayHistoryListScreen) Name() sum.Int[models.ScreenName] {
 // Lists available play History consoles
 func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e error) {
 	var consolePlayMap map[string]int
-	var totalPlay int 
+	var totalPlay int
 	var title string
 	if len(ptls.PlayHistoryFilterList) == 0 {
 		_, consolePlayMap, totalPlay = state.GetPlayMaps()

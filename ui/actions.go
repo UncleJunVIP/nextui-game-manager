@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
 
@@ -38,7 +38,7 @@ func (a ActionsScreen) Draw() (action interface{}, exitCode int, e error) {
 
 	existingArtFilename, err := utils.FindExistingArt(a.Game.Filename, a.RomDirectory)
 	if err != nil {
-		logger.Error("failed to find existing arts", zap.Error(err))
+		logger.Error("failed to find existing art", "error", err)
 	}
 
 	actions := models.ActionKeys

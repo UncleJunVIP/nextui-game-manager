@@ -2,11 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"os"
 	"path/filepath"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
 
 func GetFileList(dirPath string) ([]os.DirEntry, error) {
@@ -33,12 +33,12 @@ func MoveFile(sourcePath, destinationPath string) error {
 	logger := common.GetLoggerInstance()
 
 	if err := EnsureDirectoryExists(filepath.Dir(destinationPath)); err != nil {
-		logger.Error("Failed to create destination directory", zap.Error(err))
+		logger.Error("Failed to create destination directory", "error", err)
 		return fmt.Errorf("failed to create destination directory: %w", err)
 	}
 
 	if err := os.Rename(sourcePath, destinationPath); err != nil {
-		logger.Error("Failed to move file", zap.String("from", sourcePath), zap.String("to", destinationPath), zap.Error(err))
+		logger.Error("Failed to move file", "from", sourcePath, "to", destinationPath, "error", err)
 		return fmt.Errorf("failed to move file from %s to %s: %w", sourcePath, destinationPath, err)
 	}
 
