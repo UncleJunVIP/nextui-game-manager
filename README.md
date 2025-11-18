@@ -54,12 +54,4 @@ A one-stop pak for all your game management needs.
 7. Reinsert your SD Card into your device.
 8. Launch `Game Manager` from the `Tools` menu and enjoy!
 
----
-
-## Shameless Plug: Want to download ROMs on your device?
-
-Go snag [Mortar](https://github.com/UncleJunVIP/Mortar): a customizable ROM download client.
-
----
-
 ✌️
