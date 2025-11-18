@@ -2,12 +2,14 @@ package utils
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"go.uber.org/zap"
 )
 
 func GetArchiveFileListBasic() ([]string, error) {
@@ -152,7 +154,7 @@ func buildRestorePath(filename string, romDirectory shared.RomDirectory, archive
 	return filepath.Join(GetRomDirectory(), subdirectory, filename)
 }
 
-func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveName string, logger *zap.Logger) {
+func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveName string, logger *slog.Logger) {
 	artPath, err := FindExistingArt(filename, romDirectory)
 	if err != nil || artPath == "" {
 		return
@@ -167,7 +169,7 @@ func archiveArtFile(filename string, romDirectory shared.RomDirectory, archiveNa
 	}
 }
 
-func restoreArtFile(filename string, romDirectory shared.RomDirectory, archive shared.RomDirectory, logger *zap.Logger) {
+func restoreArtFile(filename string, romDirectory shared.RomDirectory, archive shared.RomDirectory, logger *slog.Logger) {
 	artPath, err := FindExistingArt(filename, romDirectory)
 	if err != nil || artPath == "" {
 		return

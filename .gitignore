@@ -19,3 +19,5 @@
 /data/*
 /certs/*
 /build/*
+/.env
+/logs/*

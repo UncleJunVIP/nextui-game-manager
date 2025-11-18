@@ -1,14 +1,16 @@
 package ui
 
 import (
+	"log/slog"
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
 	"qlova.tech/sum"
 )
 
@@ -35,7 +37,7 @@ func (m MainMenu) Name() sum.Int[models.ScreenName] {
 }
 
 func (m MainMenu) Draw() (interface{}, int, error) {
-	logger := common.GetLoggerInstance()
+	logger := gaba.GetLoggerInstance()
 
 	menuItems, err := buildMenuItems(logger)
 	if err != nil {
@@ -45,7 +47,7 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 	return handleMenuSelection(menuItems)
 }
 
-func buildMenuItems(logger *zap.Logger) ([]gaba.MenuItem, error) {
+func buildMenuItems(logger *slog.Logger) ([]gaba.MenuItem, error) {
 	var menuItems []gaba.MenuItem
 
 	if collectionsItem := buildCollectionsMenuItem(logger); collectionsItem != nil {
@@ -73,7 +75,7 @@ func buildMenuItems(logger *zap.Logger) ([]gaba.MenuItem, error) {
 	return menuItems, nil
 }
 
-func buildCollectionsMenuItem(logger *zap.Logger) *gaba.MenuItem {
+func buildCollectionsMenuItem(logger *slog.Logger) *gaba.MenuItem {
 	fb := filebrowser.NewFileBrowser(logger)
 
 	if err := fb.CWD(utils.GetCollectionDirectory(), false); err != nil {
@@ -130,7 +132,7 @@ func createArchivesRomDirectory() shared.RomDirectory {
 	}
 }
 
-func buildRomDirectoryMenuItems(logger *zap.Logger) ([]gaba.MenuItem, error) {
+func buildRomDirectoryMenuItems(logger *slog.Logger) ([]gaba.MenuItem, error) {
 	fb := filebrowser.NewFileBrowser(logger)
 
 	if err := fb.CWD(utils.GetRomDirectory(), state.GetAppState().Config.HideEmpty); err != nil {

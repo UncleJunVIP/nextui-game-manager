@@ -2,16 +2,16 @@ package ui
 
 import (
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"github.com/veandco/go-sdl2/sdl"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"qlova.tech/sum"
 	"slices"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"go.uber.org/zap"
+	"qlova.tech/sum"
 )
 
 type CollectionManagement struct {
@@ -62,8 +62,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 	options.EmptyMessage = "This collection is empty.\nAdd some games you silly goose!"
 
 	options.EnableMultiSelect = true
-	options.MultiSelectKey = sdl.K_SPACE
-	options.MultiSelectButton = gaba.ButtonSelect
+	options.MultiSelectButton = gaba.InternalButtonSelect
 
 	options.HelpText = []string{
 		"• X: Open Options",
@@ -71,8 +70,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 
 	if len(menuItems) > 1 {
 		options.EnableReordering = true
-		options.ReorderKey = sdl.K_y
-		options.ReorderButton = gaba.ButtonY
+		options.ReorderButton = gaba.InternalButtonY
 		options.HelpText = append(options.HelpText, "• Y: Toggle Reordering Mode")
 		options.HelpText = append(options.HelpText, "• ↕: Move Selection")
 	}

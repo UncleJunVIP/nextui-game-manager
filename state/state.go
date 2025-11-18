@@ -2,12 +2,13 @@ package state
 
 import (
 	"fmt"
-	"go.uber.org/atomic"
-	"gopkg.in/yaml.v3"
 	"nextui-game-manager/models"
 	"nextui-game-manager/utils"
 	"os"
 	"sync"
+
+	"go.uber.org/atomic"
+	"gopkg.in/yaml.v3"
 )
 
 var appState atomic.Pointer[models.AppState]

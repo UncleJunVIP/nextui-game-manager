@@ -2,11 +2,12 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
-	"os"
-	"path/filepath"
 )
 
 func GetFileList(dirPath string) ([]os.DirEntry, error) {

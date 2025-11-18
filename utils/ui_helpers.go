@@ -1,8 +1,9 @@
 package utils
 
 import (
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"time"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 )
 
 func ShowTimedMessage(message string, delay time.Duration) {
@@ -27,7 +28,7 @@ func ConfirmBulkAction(message string) bool {
 		{ButtonName: "X", HelpText: "Remove"},
 	}, gaba.MessageOptions{
 		ImagePath:     "",
-		ConfirmButton: gaba.ButtonX,
+		ConfirmButton: gaba.InternalButtonX,
 	})
 
 	return confirm.IsSome() && !confirm.Unwrap().Cancelled

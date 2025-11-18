@@ -2,19 +2,21 @@ package utils
 
 import (
 	"fmt"
+	"log/slog"
+	"math"
+	"net/url"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
+
 	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"github.com/disintegration/imaging"
 	"go.uber.org/zap"
-	"math"
-	"net/url"
-	"path/filepath"
 	"qlova.tech/sum"
-	"regexp"
-	"slices"
-	"strings"
 )
 
 func FindExistingArt(selectedFile string, romDirectory shared.RomDirectory) (string, error) {
@@ -329,7 +331,7 @@ func buildArtDirectory(game shared.Item) string {
 	return filepath.Join(romDirectoryPath, ".media")
 }
 
-func renameArtFile(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *zap.Logger) {
+func renameArtFile(oldFilename, newFilename string, romDirectory shared.RomDirectory, logger *slog.Logger) {
 	existingArtPath, err := FindExistingArt(oldFilename, romDirectory)
 	if err != nil {
 		logger.Error("Failed to find existing art", zap.Error(err))

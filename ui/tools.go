@@ -1,9 +1,10 @@
 package ui
 
 import (
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 )
 
@@ -40,7 +41,7 @@ func (ts ToolsScreen) Draw() (value interface{}, exitCode int, e error) {
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
-	
+
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},

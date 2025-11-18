@@ -1,17 +1,18 @@
 package ui
 
 import (
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+	"path/filepath"
+	"strings"
+
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
-	"path/filepath"
 	"qlova.tech/sum"
-	"strings"
 )
 
 type GameList struct {

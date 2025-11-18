@@ -1,16 +1,17 @@
 package ui
 
 import (
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"qlova.tech/sum"
 	"time"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"qlova.tech/sum"
 )
 
-type ArchiveListScreen struct {}
+type ArchiveListScreen struct{}
 
 func InitArchiveListScreen() ArchiveListScreen {
 	return ArchiveListScreen{}
@@ -23,7 +24,7 @@ func (als ArchiveListScreen) Name() sum.Int[models.ScreenName] {
 // Lists available archive folders
 func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 	title := "Archives"
-	
+
 	archiveFolders, err := utils.GetArchiveFileListBasic()
 	if err != nil {
 		utils.ShowTimedMessage("Unable to Load Archives!", time.Second*2)
@@ -67,7 +68,7 @@ func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 		archive := selection.Unwrap().SelectedItem.Metadata.(string)
 		archiveDirectory := shared.RomDirectory{
 			DisplayName: archive,
-			Path: 		 utils.GetArchiveRoot(archive),
+			Path:        utils.GetArchiveRoot(archive),
 		}
 		return archiveDirectory, 0, nil
 	}

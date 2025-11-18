@@ -2,24 +2,25 @@ package ui
 
 import (
 	"fmt"
+	"nextui-game-manager/models"
+	"nextui-game-manager/state"
+	"nextui-game-manager/utils"
+	"time"
+
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
-	"nextui-game-manager/models"
-	"nextui-game-manager/state"
-	"nextui-game-manager/utils"
 	"qlova.tech/sum"
-	"time"
 )
 
 type ArchiveOptionsScreen struct {
-	Archive   shared.RomDirectory
+	Archive shared.RomDirectory
 }
 
 func InitArchiveOptionsScreen(archive shared.RomDirectory) ArchiveOptionsScreen {
 	return ArchiveOptionsScreen{
-		Archive:   archive,
+		Archive: archive,
 	}
 }
 
@@ -81,13 +82,13 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 
 					if err != nil {
 						logger.Error("Failed to rename archive", zap.Error(err))
-						utils.ShowTimedMessage("Failed to rename archive", time.Second * 2)
+						utils.ShowTimedMessage("Failed to rename archive", time.Second*2)
 						return nil, 1, err
 					}
 
 					archiveDirectory := shared.RomDirectory{
 						DisplayName: newArchive,
-						Path: 		 newArchivePath,
+						Path:        newArchivePath,
 					}
 
 					return archiveDirectory, 4, nil
@@ -102,7 +103,7 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 				{ButtonName: "X", HelpText: "Delete"},
 			}, gabagool.MessageOptions{
 				ImagePath:     "",
-				ConfirmButton: gabagool.ButtonX,
+				ConfirmButton: gabagool.InternalButtonX,
 			})
 
 			if res.IsSome() && !res.Unwrap().Cancelled {
@@ -110,12 +111,12 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 
 				if err != nil {
 					logger.Error("Failed to delete archive", zap.Error(err))
-					utils.ShowTimedMessage("Failed to delete archive", time.Second * 2)
+					utils.ShowTimedMessage("Failed to delete archive", time.Second*2)
 					return nil, 1, err
 				}
 
 				if res != "" {
-					utils.ShowTimedMessage(fmt.Sprintf("Cannot delete while file exists in archive\n%s", res), time.Second * 2)
+					utils.ShowTimedMessage(fmt.Sprintf("Cannot delete while file exists in archive\n%s", res), time.Second*2)
 					return aos.Archive, 2, nil
 				}
 

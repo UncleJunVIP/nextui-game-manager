@@ -2,12 +2,13 @@ package ui
 
 import (
 	"fmt"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"go.uber.org/zap"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
+
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"go.uber.org/zap"
 	"qlova.tech/sum"
 )
 
@@ -86,7 +87,7 @@ func (c CollectionOptionsScreen) Draw() (screenReturn interface{}, exitCode int,
 				{ButtonName: "X", HelpText: "Delete"},
 			}, gabagool.MessageOptions{
 				ImagePath:     "",
-				ConfirmButton: gabagool.ButtonX,
+				ConfirmButton: gabagool.InternalButtonX,
 			})
 
 			if res.IsSome() && !res.Unwrap().Cancelled {

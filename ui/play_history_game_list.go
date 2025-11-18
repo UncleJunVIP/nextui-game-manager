@@ -2,22 +2,23 @@ package ui
 
 import (
 	"fmt"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
+
+	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 )
 
 type PlayHistoryGamesListScreen struct {
-	Console         		string
-	PlayHistoryFilterList	[]models.PlayHistorySearchFilter
+	Console               string
+	PlayHistoryFilterList []models.PlayHistorySearchFilter
 }
 
 func InitPlayHistoryGamesListScreen(console string, filterList []models.PlayHistorySearchFilter) PlayHistoryGamesListScreen {
 	return PlayHistoryGamesListScreen{
-		Console:              	console,
-		PlayHistoryFilterList:  filterList,
+		Console:               console,
+		PlayHistoryFilterList: filterList,
 	}
 }
 
@@ -44,7 +45,7 @@ func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, 
 
 	var menuItems []gaba.MenuItem
 	collectionMap := state.GetCollectionMap()
-	
+
 	for _, gamePlayAggregate := range gamesList {
 		playHours := min(999, float64(gamePlayAggregate.PlayTimeTotal)/3600.0)
 		romHomeStatus := utils.FindRomHomeFromAggregate(gamePlayAggregate, appState.Config.PlayHistoryShowArchives)
