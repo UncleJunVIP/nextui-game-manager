@@ -7,6 +7,7 @@ import (
 	"nextui-game-manager/utils"
 
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"go.uber.org/zap"
 	"qlova.tech/sum"
@@ -87,7 +88,7 @@ func (c CollectionOptionsScreen) Draw() (screenReturn interface{}, exitCode int,
 				{ButtonName: "X", HelpText: "Delete"},
 			}, gabagool.MessageOptions{
 				ImagePath:     "",
-				ConfirmButton: gabagool.InternalButtonX,
+				ConfirmButton: constants.VirtualButtonX,
 			})
 
 			if res.IsSome() && !res.Unwrap().Cancelled {

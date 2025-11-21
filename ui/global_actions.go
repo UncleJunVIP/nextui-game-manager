@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
@@ -95,7 +96,7 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 
 			platformSelectionOptions.EnableMultiSelect = true
 			platformSelectionOptions.StartInMultiSelectMode = true
-			platformSelectionOptions.MultiSelectButton = gabagool.InternalButtonUnassigned
+			platformSelectionOptions.MultiSelectButton = constants.VirtualButtonUnassigned
 
 			platformSelectionOptions.FooterHelpItems = []gabagool.FooterHelpItem{
 				{ButtonName: "B", HelpText: "Back"},

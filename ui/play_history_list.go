@@ -9,7 +9,7 @@ import (
 	"nextui-game-manager/utils"
 	"slices"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 )
 
@@ -45,12 +45,12 @@ func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e erro
 		return nil, 404, nil
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 	consoles := slices.SortedStableFunc(maps.Keys(consolePlayMap), func(a, b string) int {
 		return cmp.Compare(consolePlayMap[b], consolePlayMap[a])
 	})
 	for _, console := range consoles {
-		consoleItem := gaba.MenuItem{
+		consoleItem := gabagool.MenuItem{
 			Text:     fmt.Sprintf("%.1fH : %s", min(9999, float64(consolePlayMap[console])/3600.0), console),
 			Selected: false,
 			Focused:  false,
@@ -59,7 +59,7 @@ func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e erro
 		menuItems = append(menuItems, consoleItem)
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -67,13 +67,13 @@ func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e erro
 
 	options.EnableAction = true
 	options.SmallTitle = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Filter"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

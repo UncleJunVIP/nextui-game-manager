@@ -5,7 +5,7 @@ import (
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 )
 
@@ -35,9 +35,9 @@ func (c CollectionListScreen) Draw() (collection interface{}, exitCode int, e er
 		title = "[Search: \"" + c.SearchFilter + "\"]"
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 	for _, collection := range collectionList {
-		menuItems = append(menuItems, gaba.MenuItem{
+		menuItems = append(menuItems, gabagool.MenuItem{
 			Text:     collection.DisplayName,
 			Selected: false,
 			Focused:  false,
@@ -49,19 +49,19 @@ func (c CollectionListScreen) Draw() (collection interface{}, exitCode int, e er
 		title = "No Collections Found"
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.EnableAction = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
@@ -75,10 +75,10 @@ func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCod
 	gameAggregate := utils.CollectGameAggregateFromGamePath(ptgds.GameAggregate.Path, ptgds.Console, gamePlayMap)
 	title := gameAggregate.Name
 
-	var sections []gaba.Section
-	sections = append(sections, gaba.NewInfoSection(
+	var sections []gabagool.Section
+	sections = append(sections, gabagool.NewInfoSection(
 		title,
-		[]gaba.MetadataItem{
+		[]gabagool.MetadataItem{
 			{Label: "Console", Value: ptgds.Console},
 			{Label: "First Played", Value: gameAggregate.FirstPlayedTime.Format(time.UnixDate)},
 			{Label: "Last Played", Value: gameAggregate.LastPlayedTime.Format(time.UnixDate)},
@@ -90,16 +90,16 @@ func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCod
 		},
 	))
 
-	options := gaba.DefaultInfoScreenOptions()
+	options := gabagool.DefaultInfoScreenOptions()
 	options.Sections = sections
 	options.ShowThemeBackground = false
 
-	footerItems := []gaba.FooterHelpItem{
+	footerItems := []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "History"},
 	}
 
-	sel, err := gaba.DetailScreen("Play Stats", options, footerItems)
+	sel, err := gabagool.DetailScreen("Play Stats", options, footerItems)
 	if err != nil {
 		logger.Error("Unable to display Play History screen", zap.Error(err))
 		return nil, -1, err

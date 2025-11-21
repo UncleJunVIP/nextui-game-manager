@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
@@ -86,14 +86,14 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 	}
 
 	if len(a.Games) == 1 && len(collections) == 0 {
-		res, err := gaba.ConfirmationMessage(fmt.Sprintf("Every collection contains %s. \n Want to create a new one?", a.Games[0].DisplayName),
-			[]gaba.FooterHelpItem{{
+		res, err := gabagool.ConfirmationMessage(fmt.Sprintf("Every collection contains %s. \n Want to create a new one?", a.Games[0].DisplayName),
+			[]gabagool.FooterHelpItem{{
 				HelpText:   "No Thanks",
 				ButtonName: "B",
 			}, {
 				HelpText:   "Yes",
 				ButtonName: "A",
-			}}, gaba.MessageOptions{})
+			}}, gabagool.MessageOptions{})
 
 		if err != nil || res.IsNone() {
 			return nil, 2, nil
@@ -115,7 +115,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 		return strings.Compare(a.DisplayName, b.DisplayName)
 	})
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 	for _, item := range itemList {
 		col := models.Collection{DisplayName: item.DisplayName, CollectionFile: item.Path}
 		col, err = utils.ReadCollection(col)
@@ -125,7 +125,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 			return nil, -1, err
 		}
 
-		collection := gaba.MenuItem{
+		collection := gabagool.MenuItem{
 			Text:     item.DisplayName,
 			Selected: false,
 			Focused:  false,
@@ -139,7 +139,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 		title = "Add Games To Collection"
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -148,13 +148,13 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 	options.SmallTitle = true
 	options.EnableAction = true
 	options.EnableMultiSelect = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Create Collection"},
 		{ButtonName: "A", HelpText: "Add"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

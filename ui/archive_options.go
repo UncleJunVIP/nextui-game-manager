@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
@@ -103,7 +104,7 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 				{ButtonName: "X", HelpText: "Delete"},
 			}, gabagool.MessageOptions{
 				ImagePath:     "",
-				ConfirmButton: gabagool.InternalButtonX,
+				ConfirmButton: constants.VirtualButtonX,
 			})
 
 			if res.IsSome() && !res.Unwrap().Cancelled {

@@ -7,7 +7,7 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
@@ -47,9 +47,9 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 		utils.ShowTimedMessage("Unable to Load Archives!", time.Second*2)
 		return nil, -1, nil
 	}
-	var archiveFolderEntries []gaba.MenuItem
+	var archiveFolderEntries []gabagool.MenuItem
 	for _, item := range archiveFolders {
-		archiveFolderEntries = append(archiveFolderEntries, gaba.MenuItem{
+		archiveFolderEntries = append(archiveFolderEntries, gabagool.MenuItem{
 			Text:               item,
 			Selected:           false,
 			Focused:            false,
@@ -58,7 +58,7 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 		})
 	}
 
-	options := gaba.DefaultListOptions(title, archiveFolderEntries)
+	options := gabagool.DefaultListOptions(title, archiveFolderEntries)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -68,13 +68,13 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 	options.EmptyMessage = "No Archive Folders Found"
 	options.EnableAction = true
 	options.EnableMultiSelect = false
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Create Archive"},
 		{ButtonName: "A", HelpText: "Move"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

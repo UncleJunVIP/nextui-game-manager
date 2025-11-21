@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
@@ -62,8 +62,8 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 		roms = utils.FilterList(roms, agl.SearchFilter)
 	}
 
-	var directoryEntries []gaba.MenuItem
-	var itemEntries []gaba.MenuItem
+	var directoryEntries []gabagool.MenuItem
+	var itemEntries []gabagool.MenuItem
 
 	for _, item := range roms {
 		if strings.HasPrefix(item.Filename, ".") { // Skip hidden files
@@ -74,7 +74,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 
 		if !item.IsSelfContainedDirectory && !item.IsMultiDiscDirectory && item.IsDirectory {
 			itemName = "/" + itemName
-			directoryEntries = append(directoryEntries, gaba.MenuItem{
+			directoryEntries = append(directoryEntries, gabagool.MenuItem{
 				Text:               itemName,
 				Selected:           false,
 				Focused:            false,
@@ -82,7 +82,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 				NotMultiSelectable: true,
 			})
 		} else {
-			itemEntries = append(itemEntries, gaba.MenuItem{
+			itemEntries = append(itemEntries, gabagool.MenuItem{
 				Text:     itemName,
 				Selected: false,
 				Focused:  false,
@@ -93,7 +93,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 
 	allEntries := append(directoryEntries, itemEntries...)
 
-	options := gaba.DefaultListOptions(title, allEntries)
+	options := gabagool.DefaultListOptions(title, allEntries)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -103,7 +103,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 	options.EmptyMessage = "No ROMs Found"
 	options.EnableAction = true
 	options.EnableMultiSelect = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Search"},
 		{ButtonName: "Menu", HelpText: "Help"},
@@ -118,14 +118,14 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 		"• Start: Confirm Multi-Selection",
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}
 
 	if selection.IsSome() && selection.Unwrap().ActionTriggered {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		query, err := gaba.Keyboard("")
+		query, err := gabagool.Keyboard("")
 
 		if err != nil {
 			return nil, 1, err

@@ -7,7 +7,7 @@ import (
 	"nextui-game-manager/utils"
 	"strings"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
@@ -93,10 +93,10 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		filterList = utils.GenFiltersList(romIds, currentFilter.SqlFilter, currentFilter.FilterType)
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 
 	for _, filter := range filterList {
-		filterItem := gaba.MenuItem{
+		filterItem := gabagool.MenuItem{
 			Text:     fmt.Sprintf("%s : %s", filter.DisplayName, utils.ConvertSecondsToHumanReadable(filter.PlayTime)),
 			Selected: false,
 			Focused:  false,
@@ -105,7 +105,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 		menuItems = append(menuItems, filterItem)
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -114,16 +114,16 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	options.EnableAction = true
 	//options.SmallTitle = true
 	options.EmptyMessage = "Max Filter Depth\nX to save filter"
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "X", HelpText: "Save Filter"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
 	if len(phfs.PlayHistoryFilterList) > 0 {
-		options.FooterHelpItems = append([]gaba.FooterHelpItem{{ButtonName: "B", HelpText: "Back"}}, options.FooterHelpItems...)
+		options.FooterHelpItems = append([]gabagool.FooterHelpItem{{ButtonName: "B", HelpText: "Back"}}, options.FooterHelpItems...)
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

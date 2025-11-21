@@ -7,7 +7,7 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
@@ -53,11 +53,11 @@ func (ptghs PlayHistoryGameHistoryScreen) Draw() (item interface{}, exitCode int
 		title = fmt.Sprintf("%s: %s", currentFilter.DisplayName, ptghs.GameAggregate.Name)
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 	for _, playRecord := range playHistory {
 		duration := utils.ConvertSecondsToHumanReadableAbbreviated(playRecord.PlayTime)
 		startTime := time.Unix(int64(playRecord.StartTime), 0).Format(time.UnixDate)
-		playItem := gaba.MenuItem{
+		playItem := gabagool.MenuItem{
 			Text:     fmt.Sprintf("%s ~ %s", startTime, duration),
 			Selected: false,
 			Focused:  false,
@@ -66,7 +66,7 @@ func (ptghs PlayHistoryGameHistoryScreen) Draw() (item interface{}, exitCode int
 		menuItems = append(menuItems, playItem)
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -75,13 +75,13 @@ func (ptghs PlayHistoryGameHistoryScreen) Draw() (item interface{}, exitCode int
 	options.SmallTitle = true
 	options.EmptyMessage = "No Play Records Found"
 	options.EnableAction = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Filter"},
 		//{ButtonName: "A", HelpText: "Update"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

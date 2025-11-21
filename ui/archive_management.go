@@ -4,7 +4,7 @@ import (
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
@@ -41,7 +41,7 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 		return shared.Item{}, 1, err
 	}
 
-	var consoles []gaba.MenuItem
+	var consoles []gabagool.MenuItem
 
 	for _, item := range fb.Items {
 		if !item.IsSelfContainedDirectory && !item.IsMultiDiscDirectory && item.IsDirectory {
@@ -50,7 +50,7 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 				Tag:         item.Tag,
 				Path:        item.Path,
 			}
-			menuItem := gaba.MenuItem{
+			menuItem := gabagool.MenuItem{
 				Text:     romDirectory.DisplayName,
 				Selected: false,
 				Focused:  false,
@@ -60,7 +60,7 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 		}
 	}
 
-	options := gaba.DefaultListOptions(title, consoles)
+	options := gabagool.DefaultListOptions(title, consoles)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -75,13 +75,13 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 		"• X: Open Options",
 	}
 
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Options"},
 		{ButtonName: "Menu", HelpText: "Controls"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 
 	if err != nil {
 		return nil, -1, err

@@ -36,7 +36,7 @@ const (
 )
 
 func init() {
-	gaba.InitSDL(gaba.Options{
+	gaba.Init(gaba.Options{
 		WindowTitle:    "Game Manager",
 		ShowBackground: true,
 		LogFilename:    "game_manager.log",
@@ -91,7 +91,7 @@ func main() {
 }
 
 func cleanup() {
-	gaba.CloseSDL()
+	gaba.Close()
 }
 
 func runApplicationLoop() {

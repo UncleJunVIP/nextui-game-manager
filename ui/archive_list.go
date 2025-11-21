@@ -6,7 +6,7 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 )
@@ -35,9 +35,9 @@ func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 		return nil, 404, nil
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 	for _, archiveFolder := range archiveFolders {
-		archive := gaba.MenuItem{
+		archive := gabagool.MenuItem{
 			Text:     archiveFolder,
 			Selected: false,
 			Focused:  false,
@@ -46,19 +46,19 @@ func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 		menuItems = append(menuItems, archive)
 	}
 
-	options := gaba.DefaultListOptions(title, menuItems)
+	options := gabagool.DefaultListOptions(title, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.EnableAction = true
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
-	selection, err := gaba.List(options)
+	selection, err := gabagool.List(options)
 	if err != nil {
 		return nil, -1, err
 	}

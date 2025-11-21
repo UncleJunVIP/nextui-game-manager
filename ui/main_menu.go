@@ -37,7 +37,7 @@ func (m MainMenu) Name() sum.Int[models.ScreenName] {
 }
 
 func (m MainMenu) Draw() (interface{}, int, error) {
-	logger := gaba.GetLoggerInstance()
+	logger := gaba.GetLogger()
 
 	menuItems, err := buildMenuItems(logger)
 	if err != nil {

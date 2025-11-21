@@ -7,7 +7,8 @@ import (
 	"nextui-game-manager/utils"
 	"slices"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
@@ -39,10 +40,10 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 		return shared.Item{}, 1, err
 	}
 
-	var menuItems []gaba.MenuItem
+	var menuItems []gabagool.MenuItem
 
 	for _, g := range c.Collection.Games {
-		menuItems = append(menuItems, gaba.MenuItem{
+		menuItems = append(menuItems, gabagool.MenuItem{
 			Text:     g.DisplayName,
 			Selected: false,
 			Focused:  false,
@@ -50,7 +51,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 		})
 	}
 
-	options := gaba.DefaultListOptions(c.Collection.DisplayName, menuItems)
+	options := gabagool.DefaultListOptions(c.Collection.DisplayName, menuItems)
 
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
 	options.SelectedIndex = selectedIndex
@@ -62,7 +63,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 	options.EmptyMessage = "This collection is empty.\nAdd some games you silly goose!"
 
 	options.EnableMultiSelect = true
-	options.MultiSelectButton = gaba.InternalButtonSelect
+	options.MultiSelectButton = constants.VirtualButtonSelect
 
 	options.HelpText = []string{
 		"• X: Open Options",
@@ -70,7 +71,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 
 	if len(menuItems) > 1 {
 		options.EnableReordering = true
-		options.ReorderButton = gaba.InternalButtonY
+		options.ReorderButton = constants.VirtualButtonY
 		options.HelpText = append(options.HelpText, "• Y: Toggle Reordering Mode")
 		options.HelpText = append(options.HelpText, "• ↕: Move Selection")
 	}
@@ -79,13 +80,13 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 
 	options.HelpText = append(options.HelpText, "• A: Remove ROM / Add to Remove Selection")
 	options.HelpText = append(options.HelpText, "• Start: Remove Selected")
-	options.FooterHelpItems = []gaba.FooterHelpItem{
+	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Options"},
 		{ButtonName: "Menu", HelpText: "Controls"},
 	}
 
-	selection, _ := gaba.List(options)
+	selection, _ := gabagool.List(options)
 
 	if selection.IsSome() && selection.Unwrap().ActionTriggered {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
@@ -105,7 +106,7 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 		if utils.ConfirmBulkAction(message) {
 			var games shared.Items
 			for _, item := range c.Collection.Games {
-				if !slices.ContainsFunc(selected.SelectedItems, func(i *gaba.MenuItem) bool {
+				if !slices.ContainsFunc(selected.SelectedItems, func(i *gabagool.MenuItem) bool {
 					return item.DisplayName == i.Text
 				}) {
 					games = append(games, item)

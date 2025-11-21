@@ -7,7 +7,7 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
@@ -39,7 +39,7 @@ func (da DownloadArtScreen) Name() sum.Int[models.ScreenName] {
 
 func (da DownloadArtScreen) Draw() (value interface{}, exitCode int, e error) {
 
-	artPath, _ := gaba.ProcessMessage(fmt.Sprintf("Finding art for %s...", da.Game.DisplayName), gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+	artPath, _ := gabagool.ProcessMessage(fmt.Sprintf("Finding art for %s...", da.Game.DisplayName), gabagool.ProcessMessageOptions{}, func() (interface{}, error) {
 		artPath := utils.FindArt(da.RomDirectory, da.Game, da.DownloadType, state.GetAppState().Config.FuzzySearchThreshold)
 		return artPath, nil
 	})
@@ -49,12 +49,12 @@ func (da DownloadArtScreen) Draw() (value interface{}, exitCode int, e error) {
 		return shared.Item{}, 404, nil
 	}
 
-	result, err := gaba.ConfirmationMessage("Found This Art!",
-		[]gaba.FooterHelpItem{
+	result, err := gabagool.ConfirmationMessage("Found This Art!",
+		[]gabagool.FooterHelpItem{
 			{ButtonName: "B", HelpText: "I'll Find My Own"},
 			{ButtonName: "A", HelpText: "Use It!"},
 		},
-		gaba.MessageOptions{
+		gabagool.MessageOptions{
 			ImagePath: artPath.Result.(string),
 		})
 
