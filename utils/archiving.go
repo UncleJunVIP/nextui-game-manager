@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 )
 
 func GetArchiveFileListBasic() ([]string, error) {

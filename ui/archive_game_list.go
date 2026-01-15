@@ -9,11 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -101,8 +102,8 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 
 	options.SmallTitle = true
 	options.EmptyMessage = "No ROMs Found"
-	options.EnableAction = true
-	options.EnableMultiSelect = true
+	options.ActionButton = constants.VirtualButtonX
+	options.MultiSelectButton = constants.VirtualButtonSelect
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Search"},
@@ -110,7 +111,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 		{ButtonName: "A", HelpText: "Restore"},
 	}
 
-	options.EnableHelp = true
+	options.HelpButton = constants.VirtualButtonMenu
 	options.HelpTitle = "Archive ROMs List Controls"
 	options.HelpText = []string{
 		"• X: Open Options",
@@ -120,25 +121,35 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		query, err := gabagool.Keyboard("")
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		query, err := gabagool.Keyboard("", "")
 
 		if err != nil {
+			if err == gabagool.ErrCancelled {
+				return nil, 4, nil
+			}
 			return nil, 1, err
 		}
 
-		if query.IsSome() {
-			return query.Unwrap(), 4, nil
+		if query != nil && query.Text != "" {
+			return query.Text, 4, nil
 		}
 
 		return nil, 4, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		rawSelection := selection.Unwrap().SelectedItems
+	} else if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		// Map selected indices to menu items
+		var rawSelection []gabagool.MenuItem
+		for _, idx := range selection.Selected {
+			rawSelection = append(rawSelection, selection.Items[idx])
+		}
 
 		firstItem := rawSelection[0].Metadata.(shared.Item)
 

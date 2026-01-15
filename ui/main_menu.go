@@ -6,11 +6,12 @@ import (
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -178,19 +179,23 @@ func handleMenuSelection(menuItems []gaba.MenuItem) (interface{}, int, error) {
 	selection, err := gaba.List(options)
 
 	if err != nil {
+		if err == gaba.ErrCancelled {
+			return nil, quitExitCode, nil
+		}
 		return nil, errorExitCode, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if len(selection.Selected) > 0 && selection.Action == gaba.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 		return nil, settingsExitCode, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		if selection.Unwrap().SelectedItem.Metadata == "Tools" {
+	} else if len(selection.Selected) > 0 && selection.Action != gaba.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		selectedItem := selection.Items[selection.Selected[0]]
+		if selectedItem.Metadata == "Tools" {
 			return nil, ToolsExitCode, nil
 		}
 
-		return selection.Unwrap().SelectedItem.Metadata.(shared.RomDirectory), selectExitCode, nil
+		return selectedItem.Metadata.(shared.RomDirectory), selectExitCode, nil
 	}
 
 	return nil, quitExitCode, nil
@@ -203,7 +208,7 @@ func createListOptions(menuItems []gaba.MenuItem) gaba.ListOptions {
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
+	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Quit"},
 		{ButtonName: "X", HelpText: "Settings"},

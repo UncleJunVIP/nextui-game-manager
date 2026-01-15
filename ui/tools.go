@@ -4,7 +4,7 @@ import (
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
 	"qlova.tech/sum"
 )
 
@@ -49,12 +49,15 @@ func (ts ToolsScreen) Draw() (value interface{}, exitCode int, e error) {
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		return selection.Unwrap().SelectedItem.Metadata, 0, nil
+	if len(selection.Selected) > 0 {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		return selection.Items[selection.Selected[0]].Metadata, 0, nil
 	}
 
 	return nil, 2, nil

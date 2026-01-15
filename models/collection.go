@@ -1,6 +1,6 @@
 package models
 
-import shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+import "nextui-game-manager/shared"
 
 type Collection struct {
 	DisplayName    string

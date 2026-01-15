@@ -7,10 +7,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	_ "github.com/mattn/go-sqlite3"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 )
 
 const (

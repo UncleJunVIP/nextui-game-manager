@@ -7,8 +7,9 @@ import (
 	"nextui-game-manager/utils"
 	"strings"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -111,7 +112,7 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
+	options.ActionButton = constants.VirtualButtonX
 	//options.SmallTitle = true
 	options.EmptyMessage = "Max Filter Depth\nX to save filter"
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
@@ -125,14 +126,17 @@ func (phfs PlayHistoryFilterScreen) Draw() (item interface{}, exitCode int, e er
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
 		return nil, 4, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		newFilter := selection.Unwrap().SelectedItem.Metadata.(models.PlayHistorySearchFilter)
+	} else if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		newFilter := selection.Items[selection.Selected[0]].Metadata.(models.PlayHistorySearchFilter)
 		return newFilter, 0, nil
 	}
 

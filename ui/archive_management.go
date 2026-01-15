@@ -4,11 +4,12 @@ import (
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -66,8 +67,8 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
-	options.EnableHelp = true
+	options.ActionButton = constants.VirtualButtonX
+	options.HelpButton = constants.VirtualButtonMenu
 	options.HelpTitle = "Archive Management Controls"
 	options.EmptyMessage = "This archive is empty."
 
@@ -84,15 +85,18 @@ func (am ArchiveManagementScreen) Draw() (value interface{}, exitCode int, e err
 	selection, err := gabagool.List(options)
 
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 		return nil, 4, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		return selection.Unwrap().SelectedItem.Metadata.(shared.RomDirectory), 0, nil
+	} else if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		return selection.Items[selection.Selected[0]].Metadata.(shared.RomDirectory), 0, nil
 	}
 
 	return nil, 2, nil

@@ -5,7 +5,8 @@ import (
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"qlova.tech/sum"
 )
 
@@ -55,7 +56,7 @@ func (c CollectionListScreen) Draw() (collection interface{}, exitCode int, e er
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
+	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
@@ -63,12 +64,15 @@ func (c CollectionListScreen) Draw() (collection interface{}, exitCode int, e er
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		return selection.Unwrap().SelectedItem.Metadata.(models.Collection), 0, nil
+	if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		return selection.Items[selection.Selected[0]].Metadata.(models.Collection), 0, nil
 	}
 
 	return nil, 2, nil

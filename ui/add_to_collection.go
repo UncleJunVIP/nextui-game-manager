@@ -9,11 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -95,7 +96,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 				ButtonName: "A",
 			}}, gabagool.MessageOptions{})
 
-		if err != nil || res.IsNone() {
+		if err != nil || res == nil || !res.Confirmed {
 			return nil, 2, nil
 		}
 
@@ -146,8 +147,8 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.SmallTitle = true
-	options.EnableAction = true
-	options.EnableMultiSelect = true
+	options.ActionButton = constants.VirtualButtonX
+	options.MultiSelectButton = constants.VirtualButtonSelect
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Create Collection"},
@@ -156,13 +157,16 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 
-		selectedCol := selection.Unwrap().SelectedItem.Metadata.(models.Collection)
+		selectedCol := selection.Items[selection.Selected[0]].Metadata.(models.Collection)
 
 		_, err := utils.AddCollectionGames(collectionMap, selectedCol, a.Games)
 		state.ClearCollectionMap()
@@ -187,7 +191,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 		utils.ShowTimedMessage(successMessage, time.Second*2)
 
 		return nil, 0, nil
-	} else if selection.IsSome() && selection.Unwrap().ActionTriggered {
+	} else if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
 		return nil, 4, nil
 	}
 

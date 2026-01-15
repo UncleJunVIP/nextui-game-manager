@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -48,13 +48,17 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if len(selection.Selected) > 0 {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		selectedItem := selection.Items[selection.Selected[0]]
 
-		if selection.Unwrap().SelectedItem.Metadata == models.Actions.GlobalDownloadArt {
+		if selectedItem.Metadata == models.Actions.GlobalDownloadArt {
 			noArt, err := utils.FindRomsWithoutArt()
 			if err != nil {
 				utils.ShowTimedMessage("Failed to scan for missing art", time.Second*2)
@@ -94,7 +98,6 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 
 			platformSelectionOptions := gabagool.DefaultListOptions("Platforms Missing Art", missingArtPlatforms)
 
-			platformSelectionOptions.EnableMultiSelect = true
 			platformSelectionOptions.StartInMultiSelectMode = true
 			platformSelectionOptions.MultiSelectButton = constants.VirtualButtonUnassigned
 
@@ -106,14 +109,21 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 
 			platformSelection, err := gabagool.List(platformSelectionOptions)
 			if err != nil {
+				if err == gabagool.ErrCancelled {
+					return nil, 0, nil
+				}
 				return nil, 0, err
 			}
 
-			if platformSelection.IsSome() && platformSelection.Unwrap().SelectedIndex == -1 {
+			if len(platformSelection.Selected) == 0 {
 				return nil, 0, nil
 			}
 
-			selectedPlatforms := platformSelection.Unwrap().SelectedItems
+			// Map selected indices to menu items
+			var selectedPlatforms []gabagool.MenuItem
+			for _, idx := range platformSelection.Selected {
+				selectedPlatforms = append(selectedPlatforms, platformSelection.Items[idx])
+			}
 
 			if len(selectedPlatforms) == 0 {
 				utils.ShowTimedMessage("Please select at least one platform!", time.Second*2)
@@ -143,36 +153,36 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 			}
 
 			gabagool.ProcessMessage(fmt.Sprintf("Searching for art...\n%d %s | %d %s Total",
-				len(selectedPlatformsMap), platformLabel, selectedMissingArtCount, gamesLabel), gabagool.ProcessMessageOptions{}, func() (interface{}, error) {
+				len(selectedPlatformsMap), platformLabel, selectedMissingArtCount, gamesLabel), gabagool.ProcessMessageOptions{}, func() (struct{}, error) {
 				for romDir, games := range selectedPlatformsMap {
 					downloads = append(downloads, utils.FindAllArt(romDir, games, state.GetAppState().Config.ArtDownloadType, state.GetAppState().Config.FuzzySearchThreshold)...)
 				}
-				return nil, nil
+				return struct{}{}, nil
 			})
 
-			res, err := gabagool.DownloadManager(downloads, make(map[string]string), true)
+			res, err := gabagool.DownloadManager(downloads, make(map[string]string), gabagool.DownloadManagerOptions{AutoContinue: true})
 			if err != nil {
 				utils.ShowTimedMessage("Failed to download art!", time.Second*2)
 				return nil, 0, nil
 			}
 
-			if len(res.CompletedDownloads) == 0 {
+			if len(res.Completed) == 0 {
 				utils.ShowTimedMessage("No art found!", time.Second*2)
-				return
+				return nil, 0, nil
 			} else {
-				message := fmt.Sprintf("Art found for %d/%d games!", len(res.CompletedDownloads), selectedMissingArtCount)
+				message := fmt.Sprintf("Art found for %d/%d games!", len(res.Completed), selectedMissingArtCount)
 				utils.ShowTimedMessage(message, time.Second*2)
 			}
-		} else if selection.Unwrap().SelectedItem.Metadata == models.Actions.GlobalClearRecents {
+		} else if selectedItem.Metadata == models.Actions.GlobalClearRecents {
 			confirmClear := utils.ConfirmAction("Are you sure you want to clear your recently played list?\n\nThis cannot be undone!")
 
 			if confirmClear {
-				deletedRes, _ := gabagool.ProcessMessage("Clearing Recently Played List.", gabagool.ProcessMessageOptions{}, func() (interface{}, error) {
+				deletedRes, _ := gabagool.ProcessMessage("Clearing Recently Played List.", gabagool.ProcessMessageOptions{}, func() (bool, error) {
 					time.Sleep(1500 * time.Millisecond)
 					return common.DeleteFile(utils.RecentlyPlayedFile), nil
 				})
 
-				if deletedRes.Result.(bool) {
+				if deletedRes {
 					utils.ShowTimedMessage("Recently Played List Cleared!", time.Millisecond*1500)
 				} else {
 					utils.ShowTimedMessage("Failed to confirmClear recently played list!", time.Millisecond*1500)

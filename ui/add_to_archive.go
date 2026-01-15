@@ -7,8 +7,9 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -66,8 +67,7 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 
 	options.SmallTitle = true
 	options.EmptyMessage = "No Archive Folders Found"
-	options.EnableAction = true
-	options.EnableMultiSelect = false
+	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Create Archive"},
@@ -76,12 +76,15 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		archiveFolder := selection.Unwrap().SelectedItem.Text
+	if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		archiveFolder := selection.Items[selection.Selected[0]].Text
 
 		message := fmt.Sprintf("Archive %s into %s?", atas.Games[0].DisplayName, archiveFolder)
 		if bulk {
@@ -109,7 +112,7 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 		return nil, 0, nil
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
 		return nil, 4, nil
 	}
 

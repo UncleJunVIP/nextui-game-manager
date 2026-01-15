@@ -7,11 +7,11 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -48,7 +48,7 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
+	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
@@ -57,24 +57,31 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 	selection, err := gabagool.List(options)
 
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		action := models.ActionMap[selection.Unwrap().SelectedItem.Metadata.(string)]
+	if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		selectedItem := selection.Items[selection.Selected[0]]
+		action := models.ActionMap[selectedItem.Metadata.(string)]
 
 		switch action {
 		case models.Actions.ArchiveRename:
 			oldArchive := utils.CleanArchiveName(aos.Archive.DisplayName)
-			res, err := gabagool.Keyboard(oldArchive)
+			res, err := gabagool.Keyboard(oldArchive, "")
 
 			if err != nil {
+				if err == gabagool.ErrCancelled {
+					return nil, 4, nil
+				}
 				return nil, 1, err
 			}
 
-			if res.IsSome() {
-				newArchive := res.Unwrap()
+			if res != nil && res.Text != "" {
+				newArchive := res.Text
 				if newArchive != oldArchive {
 					newArchive = utils.PrepArchiveName(newArchive)
 					newArchivePath := utils.GetArchiveRoot(newArchive)
@@ -99,7 +106,7 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 			return nil, 4, nil
 
 		case models.Actions.ArchiveDelete:
-			res, _ := gabagool.ConfirmationMessage(fmt.Sprintf("Are you sure you want to delete the archive\n%s?", aos.Archive.DisplayName), []gabagool.FooterHelpItem{
+			res, err := gabagool.ConfirmationMessage(fmt.Sprintf("Are you sure you want to delete the archive\n%s?", aos.Archive.DisplayName), []gabagool.FooterHelpItem{
 				{ButtonName: "B", HelpText: "Cancel"},
 				{ButtonName: "X", HelpText: "Delete"},
 			}, gabagool.MessageOptions{
@@ -107,7 +114,7 @@ func (aos ArchiveOptionsScreen) Draw() (screenReturn interface{}, exitCode int, 
 				ConfirmButton: constants.VirtualButtonX,
 			})
 
-			if res.IsSome() && !res.Unwrap().Cancelled {
+			if err == nil && res != nil && res.Confirmed {
 				res, err := utils.DeleteArchive(aos.Archive)
 
 				if err != nil {

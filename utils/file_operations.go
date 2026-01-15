@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 )
 
 func GetFileList(dirPath string) ([]os.DirEntry, error) {

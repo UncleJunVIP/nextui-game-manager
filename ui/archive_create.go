@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -34,13 +34,16 @@ func (acs ArchiveCreateScreen) Name() sum.Int[models.ScreenName] {
 }
 
 func (acs ArchiveCreateScreen) Draw() (value interface{}, exitCode int, e error) {
-	res, err := gaba.Keyboard("")
+	res, err := gaba.Keyboard("", "")
 	if err != nil {
+		if err == gaba.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if res.IsSome() {
-		newArchiveName := res.Unwrap()
+	if res != nil && res.Text != "" {
+		newArchiveName := res.Text
 
 		if newArchiveName == "" || newArchiveName == "." || strings.Contains(newArchiveName, "/") {
 			return nil, 2, nil

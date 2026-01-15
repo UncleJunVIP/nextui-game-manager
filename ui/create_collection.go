@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -36,14 +36,17 @@ func (c CreateCollectionScreen) Name() sum.Int[models.ScreenName] {
 }
 
 func (c CreateCollectionScreen) Draw() (collection interface{}, exitCode int, e error) {
-	res, err := gaba.Keyboard("")
+	res, err := gaba.Keyboard("", "")
 
 	if err != nil {
+		if err == gaba.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if res.IsSome() {
-		newCollectionName := strings.Trim(res.Unwrap(), " ")
+	if res != nil && res.Text != "" {
+		newCollectionName := strings.Trim(res.Text, " ")
 
 		if newCollectionName == "" {
 			return nil, 2, nil

@@ -5,13 +5,12 @@ import (
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
-	"slices"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -57,12 +56,11 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
-	options.EnableHelp = true
+	options.ActionButton = constants.VirtualButtonX
+	options.HelpButton = constants.VirtualButtonMenu
 	options.HelpTitle = "Collection Management Controls"
 	options.EmptyMessage = "This collection is empty.\nAdd some games you silly goose!"
 
-	options.EnableMultiSelect = true
 	options.MultiSelectButton = constants.VirtualButtonSelect
 
 	options.HelpText = []string{
@@ -70,7 +68,6 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 	}
 
 	if len(menuItems) > 1 {
-		options.EnableReordering = true
 		options.ReorderButton = constants.VirtualButtonY
 		options.HelpText = append(options.HelpText, "• Y: Toggle Reordering Mode")
 		options.HelpText = append(options.HelpText, "• ↕: Move Selection")
@@ -86,29 +83,47 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 		{ButtonName: "Menu", HelpText: "Controls"},
 	}
 
-	selection, _ := gabagool.List(options)
+	selection, err := gabagool.List(options)
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if err != nil {
+		if err == gabagool.ErrCancelled {
+			// Save reordering before exit
+			var games shared.Items
+			for _, item := range selection.Items {
+				games = append(games, item.Metadata.(shared.Item))
+			}
+			c.Collection.Games = games
+			utils.SaveCollection(c.Collection)
+			return c.Collection, 2, nil
+		}
+		return nil, -1, err
+	}
+
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 		return nil, 4, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		selected := selection.Unwrap()
+	} else if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 
 		var message string
 
-		if len(selected.SelectedItems) == 1 {
-			message = fmt.Sprintf("Remove %s from %s?", selected.SelectedItem.Text, c.Collection.DisplayName)
+		if len(selection.Selected) == 1 {
+			message = fmt.Sprintf("Remove %s from %s?", selection.Items[selection.Selected[0]].Text, c.Collection.DisplayName)
 		} else {
-			message = fmt.Sprintf("Remove %d ROMs from %s?", len(selected.SelectedItems), c.Collection.DisplayName)
+			message = fmt.Sprintf("Remove %d ROMs from %s?", len(selection.Selected), c.Collection.DisplayName)
 		}
 
 		if utils.ConfirmBulkAction(message) {
 			var games shared.Items
 			for _, item := range c.Collection.Games {
-				if !slices.ContainsFunc(selected.SelectedItems, func(i *gabagool.MenuItem) bool {
-					return item.DisplayName == i.Text
-				}) {
+				isSelected := false
+				for _, idx := range selection.Selected {
+					if item.DisplayName == selection.Items[idx].Text {
+						isSelected = true
+						break
+					}
+				}
+				if !isSelected {
 					games = append(games, item)
 				}
 			}
@@ -120,10 +135,8 @@ func (c CollectionManagement) Draw() (value interface{}, exitCode int, e error) 
 
 		return c.Collection, 0, nil
 	} else {
-		rawItems := selection.Unwrap().Items
-
 		var games shared.Items
-		for _, item := range rawItems {
+		for _, item := range selection.Items {
 			games = append(games, item.Metadata.(shared.Item))
 		}
 

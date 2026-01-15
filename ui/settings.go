@@ -1,15 +1,14 @@
 package ui
 
 import (
-	"fmt"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/utils"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -177,17 +176,22 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 
 	result, err := gabagool.OptionsList(
 		"Game Manager Settings",
+		gabagool.OptionListSettings{
+			FooterHelpItems: footerHelpItems,
+		},
 		items,
-		footerHelpItems,
 	)
 
 	if err != nil {
-		fmt.Println("Error showing options list:", err)
-		return
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
+		logger.Error("Error showing options list", zap.Error(err))
+		return nil, 0, err
 	}
 
-	if result.IsSome() {
-		newSettingOptions := result.Unwrap().Items
+	if result != nil {
+		newSettingOptions := result.Items
 
 		for _, option := range newSettingOptions {
 			if option.Item.Text == "Art Type" {
@@ -229,5 +233,5 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 		return result, 0, nil
 	}
 
-	return nil, 2, nil
+	return nil, 0, nil
 }

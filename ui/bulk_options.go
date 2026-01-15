@@ -5,8 +5,8 @@ import (
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -59,12 +59,15 @@ func (b BulkOptionsScreen) Draw() (action interface{}, exitCode int, e error) {
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		return selection.Unwrap().SelectedItem.Text, 0, nil
+	if len(selection.Selected) > 0 {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		return selection.Items[selection.Selected[0]].Text, 0, nil
 	}
 
 	return nil, 2, nil

@@ -6,8 +6,9 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -52,7 +53,7 @@ func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.EnableAction = true
+	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
@@ -60,12 +61,16 @@ func (als ArchiveListScreen) Draw() (item interface{}, exitCode int, e error) {
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		archive := selection.Unwrap().SelectedItem.Metadata.(string)
+	if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
+		selectedItem := selection.Items[selection.Selected[0]]
+		archive := selectedItem.Metadata.(string)
 		archiveDirectory := shared.RomDirectory{
 			DisplayName: archive,
 			Path:        utils.GetArchiveRoot(archive),

@@ -7,9 +7,9 @@ import (
 	"nextui-game-manager/utils"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -39,12 +39,12 @@ func (da DownloadArtScreen) Name() sum.Int[models.ScreenName] {
 
 func (da DownloadArtScreen) Draw() (value interface{}, exitCode int, e error) {
 
-	artPath, _ := gabagool.ProcessMessage(fmt.Sprintf("Finding art for %s...", da.Game.DisplayName), gabagool.ProcessMessageOptions{}, func() (interface{}, error) {
+	artPath, _ := gabagool.ProcessMessage(fmt.Sprintf("Finding art for %s...", da.Game.DisplayName), gabagool.ProcessMessageOptions{}, func() (string, error) {
 		artPath := utils.FindArt(da.RomDirectory, da.Game, da.DownloadType, state.GetAppState().Config.FuzzySearchThreshold)
 		return artPath, nil
 	})
 
-	if artPath.Result.(string) == "" {
+	if artPath == "" {
 		utils.ShowTimedMessage("No art found!", time.Second*3)
 		return shared.Item{}, 404, nil
 	}
@@ -55,11 +55,11 @@ func (da DownloadArtScreen) Draw() (value interface{}, exitCode int, e error) {
 			{ButtonName: "A", HelpText: "Use It!"},
 		},
 		gabagool.MessageOptions{
-			ImagePath: artPath.Result.(string),
+			ImagePath: artPath,
 		})
 
-	if err != nil || result.IsNone() {
-		common.DeleteFile(artPath.Result.(string))
+	if err != nil || result == nil || !result.Confirmed {
+		common.DeleteFile(artPath)
 	}
 
 	return nil, 0, nil

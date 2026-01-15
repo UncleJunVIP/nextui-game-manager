@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -105,7 +105,7 @@ func (ptgds PlayHistoryGameDetailsScreen) Draw() (selection interface{}, exitCod
 		return nil, -1, err
 	}
 
-	if sel.IsNone() {
+	if err == gabagool.ErrCancelled || sel == nil {
 		return nil, 2, nil
 	}
 

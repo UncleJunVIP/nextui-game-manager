@@ -3,8 +3,8 @@ package utils
 import (
 	"time"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool/constants"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 )
 
 func ShowTimedMessage(message string, delay time.Duration) {
@@ -20,11 +20,11 @@ func ConfirmAction(message string) bool {
 		{ButtonName: "A", HelpText: "Yes"},
 	}, gabagool.MessageOptions{})
 
-	return err == nil && result.IsSome()
+	return err == nil && result != nil && result.Confirmed
 }
 
 func ConfirmBulkAction(message string) bool {
-	confirm, _ := gabagool.ConfirmationMessage(message, []gabagool.FooterHelpItem{
+	confirm, err := gabagool.ConfirmationMessage(message, []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Cancel"},
 		{ButtonName: "X", HelpText: "Remove"},
 	}, gabagool.MessageOptions{
@@ -32,5 +32,5 @@ func ConfirmBulkAction(message string) bool {
 		ConfirmButton: constants.VirtualButtonX,
 	})
 
-	return confirm.IsSome() && !confirm.Unwrap().Cancelled
+	return err == nil && confirm != nil && confirm.Confirmed
 }

@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 )
 
 func updateCollectionGamePath(collection models.Collection, oldDisplayName string, game shared.Item, romDirectory shared.RomDirectory) {

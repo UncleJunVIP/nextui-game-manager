@@ -10,12 +10,12 @@ import (
 	"slices"
 	"strings"
 
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
 	"github.com/disintegration/imaging"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 

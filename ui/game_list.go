@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
+	"github.com/BrandonKowalski/gabagool/v2/pkg/gabagool/constants"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/filebrowser"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -101,8 +102,8 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 
 	options.SmallTitle = true
 	options.EmptyMessage = "No ROMs Found"
-	options.EnableAction = true
-	options.EnableMultiSelect = true
+	options.ActionButton = constants.VirtualButtonX
+	options.MultiSelectButton = constants.VirtualButtonSelect
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Search"},
@@ -115,7 +116,7 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 		options.EnableImages = true
 	}
 
-	options.EnableHelp = true
+	options.HelpButton = constants.VirtualButtonMenu
 	options.HelpTitle = "ROMs List Controls"
 	options.HelpText = []string{
 		"• X: Open Options",
@@ -125,19 +126,20 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 
 	selection, err := gabagool.List(options)
 	if err != nil {
+		if err == gabagool.ErrCancelled {
+			return nil, 2, nil
+		}
 		return nil, -1, err
 	}
 
-	if selection.IsSome() && selection.Unwrap().ActionTriggered {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	if len(selection.Selected) > 0 && selection.Action == gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 		return nil, 4, nil
-	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
-		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+	} else if len(selection.Selected) > 0 && selection.Action != gabagool.ListActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Selected[0], selection.VisiblePosition)
 		var selectedItems shared.Items
-		rawSelection := selection.Unwrap().SelectedItems
-
-		for _, item := range rawSelection {
-			selectedItems = append(selectedItems, item.Metadata.(shared.Item))
+		for _, idx := range selection.Selected {
+			selectedItems = append(selectedItems, selection.Items[idx].Metadata.(shared.Item))
 		}
 		return selectedItems, 0, nil
 	}

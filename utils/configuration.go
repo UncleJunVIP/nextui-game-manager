@@ -5,9 +5,9 @@ import (
 	"nextui-game-manager/models"
 	"os"
 
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
 )
 
 func SaveConfig(config *models.Config) error {

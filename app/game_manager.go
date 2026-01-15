@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"nextui-game-manager/models"
 	"nextui-game-manager/state"
 	"nextui-game-manager/ui"
@@ -10,11 +9,11 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/UncleJunVIP/certifiable"
-	gaba "github.com/UncleJunVIP/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	_ "github.com/BrandonKowalski/certifiable"
+	gaba "github.com/BrandonKowalski/gabagool/v2/pkg/gabagool"
 	"go.uber.org/zap"
+	"nextui-game-manager/common"
+	"nextui-game-manager/shared"
 	"qlova.tech/sum"
 )
 
@@ -46,7 +45,7 @@ func init() {
 
 	config, err := loadConfig()
 	if err != nil {
-		log.Fatal("Unable to initialize configuration", zap.Error(err))
+		common.LogStandardFatal("Unable to initialize configuration", err)
 	}
 
 	gaba.SetRawLogLevel(config.LogLevel)
@@ -61,7 +60,7 @@ func init() {
 			gaba.ConfirmationMessage("Unable to create Collections directory!", []gaba.FooterHelpItem{
 				{ButtonName: "B", HelpText: "Quit"},
 			}, gaba.MessageOptions{})
-			log.Fatal("Unable to create collection directory", zap.Error(mkdirErr))
+			common.LogStandardFatal("Unable to create collection directory", mkdirErr)
 		}
 	}
 }
@@ -628,17 +627,17 @@ func handleDeleteArtAction(as ui.ActionsScreen) models.Screen {
 }
 
 func handleRenameRomAction(as ui.ActionsScreen) models.Screen {
-	newName, err := gaba.Keyboard(as.Game.DisplayName)
+	newName, err := gaba.Keyboard(as.Game.DisplayName, "")
 	if err != nil {
 		utils.ShowTimedMessage("Unable to rename ROM!", longMessageDelay)
 		return ui.InitActionsScreen(as.Game, as.RomDirectory, as.PreviousRomDirectory, as.SearchFilter)
 	}
 
-	if !newName.IsSome() {
+	if newName == nil || newName.Text == "" {
 		return ui.InitActionsScreen(as.Game, as.RomDirectory, as.PreviousRomDirectory, as.SearchFilter)
 	}
 
-	newFilename := newName.Unwrap()
+	newFilename := newName.Text
 	newPath, err := utils.RenameRom(as.Game, newFilename, as.RomDirectory)
 	if err != nil {
 		utils.ShowTimedMessage("Unable to rename ROM!", longMessageDelay)
@@ -857,5 +856,5 @@ func confirmDeletion(message, imagePath string) bool {
 		ImagePath: imagePath,
 	})
 
-	return err == nil && result.IsSome()
+	return err == nil && result != nil && result.Confirmed
 }
