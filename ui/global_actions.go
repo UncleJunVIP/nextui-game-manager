@@ -98,7 +98,7 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 
 			platformSelectionOptions := gabagool.DefaultListOptions("Platforms Missing Art", missingArtPlatforms)
 
-			platformSelectionOptions.StartInMultiSelectMode = true
+			platformSelectionOptions.InitialMultiSelectMode = true
 			platformSelectionOptions.MultiSelectButton = constants.VirtualButtonUnassigned
 
 			platformSelectionOptions.FooterHelpItems = []gabagool.FooterHelpItem{
@@ -160,7 +160,7 @@ func (gas GlobalActionsScreen) Draw() (value interface{}, exitCode int, e error)
 				return struct{}{}, nil
 			})
 
-			res, err := gabagool.DownloadManager(downloads, make(map[string]string), gabagool.DownloadManagerOptions{AutoContinue: true})
+			res, err := gabagool.DownloadManager(downloads, make(map[string]string), gabagool.DownloadManagerOptions{AutoContinueOnComplete: true})
 			if err != nil {
 				utils.ShowTimedMessage("Failed to download art!", time.Second*2)
 				return nil, 0, nil

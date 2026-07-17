@@ -51,7 +51,7 @@ func (b BulkOptionsScreen) Draw() (action interface{}, exitCode int, e error) {
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},

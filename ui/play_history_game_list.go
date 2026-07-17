@@ -75,7 +75,7 @@ func (ptgls PlayHistoryGamesListScreen) Draw() (item interface{}, exitCode int, 
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.EmptyMessage = "No Play Records Found"
 	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{

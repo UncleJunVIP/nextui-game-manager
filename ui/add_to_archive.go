@@ -65,7 +65,7 @@ func (atas AddToArchiveScreen) Draw() (item interface{}, exitCode int, e error) 
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.EmptyMessage = "No Archive Folders Found"
 	options.ActionButton = constants.VirtualButtonX
 	options.FooterHelpItems = []gabagool.FooterHelpItem{

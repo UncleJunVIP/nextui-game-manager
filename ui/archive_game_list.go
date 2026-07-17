@@ -100,7 +100,7 @@ func (agl ArchiveGamesListScreen) Draw() (item interface{}, exitCode int, e erro
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.EmptyMessage = "No ROMs Found"
 	options.ActionButton = constants.VirtualButtonX
 	options.MultiSelectButton = constants.VirtualButtonSelect

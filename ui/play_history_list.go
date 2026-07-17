@@ -67,7 +67,7 @@ func (ptls PlayHistoryListScreen) Draw() (item interface{}, exitCode int, e erro
 	options.VisibleStartIndex = visibleStartIndex
 
 	options.ActionButton = constants.VirtualButtonX
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.FooterHelpItems = []gabagool.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Filter"},

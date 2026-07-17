@@ -146,7 +146,7 @@ func (a AddToCollectionScreen) Draw() (collection interface{}, exitCode int, e e
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.ActionButton = constants.VirtualButtonX
 	options.MultiSelectButton = constants.VirtualButtonSelect
 	options.FooterHelpItems = []gabagool.FooterHelpItem{

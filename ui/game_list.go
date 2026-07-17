@@ -100,7 +100,7 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 	options.SelectedIndex = selectedIndex
 	options.VisibleStartIndex = visibleStartIndex
 
-	options.SmallTitle = true
+	options.UseSmallTitle = true
 	options.EmptyMessage = "No ROMs Found"
 	options.ActionButton = constants.VirtualButtonX
 	options.MultiSelectButton = constants.VirtualButtonSelect
@@ -113,7 +113,7 @@ func (gl GameList) Draw() (item interface{}, exitCode int, e error) {
 	appState := state.GetAppState()
 
 	if appState.Config.ShowArt {
-		options.EnableImages = true
+		options.ShowImages = true
 	}
 
 	options.HelpButton = constants.VirtualButtonMenu
